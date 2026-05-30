@@ -40,8 +40,6 @@
         }
 
         body {
-            /* font-family: Inter, sans-serif; */
-            /* font-size: 11px; */
             font-weight: 300;
             background-color: #3060a0;
             margin: 0;
@@ -49,7 +47,112 @@
             position: relative;
         }
 
-        body> :not(.wm-titlebar):not(.wm-icon) {
+        .wm-frame {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        .wm-shadow {
+            position: absolute;
+            top: 20px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        .wm-frame.active > .wm-shadow {
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .wm-frame>.wm-child {
+            position: absolute;
+            left: 3px;
+            top: 23px;
+            right: 3px;
+            bottom: 3px;
+        }
+
+        .wm-frame>.wm-nw {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 16px;
+            height: 16px;
+            background-color: #bf8c19;
+            cursor: nw-resize;
+        }
+
+        .wm-frame>.wm-n {
+            position: absolute;
+            top: 20px;
+            left: 16;
+            right: 16px;
+            height: 16px;
+            background-color: #bf8c19;
+            cursor: n-resize;
+        }
+
+        .wm-frame>.wm-ne {
+            position: absolute;
+            top: 20px;
+            width: 16px;
+            right: 0px;
+            height: 16px;
+            background-color: #bf8c19;
+            cursor: ne-resize;
+        }
+
+        .wm-frame>.wm-e {
+            position: absolute;
+            top: 36px;
+            width: 16px;
+            right: 0px;
+            bottom: 16px;
+            background-color: #bf8c19;
+            cursor: e-resize;
+        }
+
+        .wm-frame>.wm-se {
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            right: 0px;
+            bottom: 0px;
+            background-color: #bf8c19;
+            cursor: se-resize;
+        }
+
+        .wm-frame>.wm-s {
+            position: absolute;
+            height: 16px;
+            left: 16px;
+            right: 16px;
+            bottom: 0px;
+            background-color: #bf8c19;
+            cursor: s-resize;
+        }
+
+        .wm-frame>.wm-sw {
+            position: absolute;
+            height: 16px;
+            left: 0px;
+            width: 16px;
+            bottom: 0px;
+            background-color: #bf8c19;
+            cursor: sw-resize;
+        }
+        .wm-frame>.wm-w {
+            position: absolute;
+            top: 36px;
+            left: 0px;
+            width: 16px;
+            bottom: 16px;
+            background-color: #bf8c19;
+            cursor: w-resize;
+        }
+
+
+        .wm-frame>.wm-child {
             position: absolute;
             margin: 0;
             background-color: #fff;
@@ -66,15 +169,14 @@
             min-height: 50px;
         }
 
-        body>.active:not(.wm-titlebar):not(.wm-icon) {
+        .wm-frame.active>.wm-child {
             border-top: #fff67a 2px solid;
             border-left: #fff67a 2px solid;
             border-right: #bf8c19 2px solid;
             border-bottom: #bf8c19 2px solid;
-            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
         }
 
-        .wm-titlebar {
+        .wm-frame>.wm-titlebar {
             position: absolute;
             cursor: move;
             margin: 0;
@@ -87,7 +189,7 @@
             border-right: #a0a0a0 2px solid;
         }
 
-        .wm-titlebar.active {
+        .wm-frame.active>.wm-titlebar {
             background-color: #ffc000;
             border-top: #fff67a 2px solid;
             border-left: #fff67a 2px solid;
@@ -106,7 +208,7 @@
 
 <body>
     <script type="module" src="src/main.ts"></script>
-        <div class="wm-icon" style="left: 732px; top: 244px;">
+    <div class="wm-icon" style="left: 732px; top: 244px;">
         <div style="display: flex; justify-content: center;">
             <img src="img/user-home.png" width="32" height="32" />
         </div>
