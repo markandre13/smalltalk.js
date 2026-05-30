@@ -2,41 +2,134 @@
 
 <head>
     <title>smalltalk.js</title>
+
+    <!-- 
+      [ ] replace .active with :focus-within ?
+      [ ] move order of windows
+    -->
+
     <style>
+        @font-face {
+            font-family: InterVariable;
+            font-style: normal;
+            font-weight: 100 900;
+            font-display: swap;
+            src: url("font/InterVariable.woff2") format("woff2");
+        }
+
+        @font-face {
+            font-family: InterVariable;
+            font-style: italic;
+            font-weight: 100 900;
+            font-display: swap;
+            src: url("font/InterVariable-Italic.woff2") format("woff2");
+        }
+
+        :root {
+            font-size: 100%;
+            text-size-adjust: none;
+            -webkit-text-size-adjust: none;
+            font-family: "Inter", sans-serif;
+        }
+
+        @supports (font-variation-settings: normal) {
+            :root {
+                font-family: "InterVariable", sans-serif;
+                font-optical-sizing: auto;
+            }
+        }
+
         body {
-            background-color: #888;
+            /* font-family: Inter, sans-serif; */
+            /* font-size: 11px; */
+            font-weight: 300;
+            background-color: #3060a0;
             margin: 0;
             overflow: hidden;
             position: relative;
         }
 
-        .transcript,
-        .repl {
+        body> :not(.wm-titlebar):not(.wm-icon) {
+            position: absolute;
             margin: 0;
             background-color: #fff;
             color: #000;
-            border: solid 2px #000;
+            outline: none;
+            /* border: solid 2px #000; */
+
+            border-top: #ffffff 2px solid;
+            border-left: #ffffff 2px solid;
+            border-right: #a0a0a0 2px solid;
+            border-bottom: #a0a0a0 2px solid;
+
+            min-width: 80px;
+            min-height: 50px;
         }
 
-        .transcript {
-            position: absolute;
-            left: 15px;
-            right: 15px;
-            top: 15px;
-            bottom: 230px;
+        body>.active:not(.wm-titlebar):not(.wm-icon) {
+            border-top: #fff67a 2px solid;
+            border-left: #fff67a 2px solid;
+            border-right: #bf8c19 2px solid;
+            border-bottom: #bf8c19 2px solid;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
         }
-        .repl {
+
+        .wm-titlebar {
             position: absolute;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            height: 200px;
+            cursor: move;
+            margin: 0;
+            font-size: calc((12/16) * 1rem);
+            font-weight: 500;
+            padding: 1px 4px 1px 4px;
+            background-color: #cfcfcf;
+            border-top: #ffffff 2px solid;
+            border-left: #ffffff 2px solid;
+            border-right: #a0a0a0 2px solid;
+        }
+
+        .wm-titlebar.active {
+            background-color: #ffc000;
+            border-top: #fff67a 2px solid;
+            border-left: #fff67a 2px solid;
+            border-right: #bf8c19 2px solid;
+            box-shadow: 5px 0px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .wm-icon {
+            font-size: calc((10/16) * 1rem);
+            position: absolute;
+            cursor: move;
+            color: #fff;
         }
     </style>
 </head>
 
 <body>
     <script type="module" src="src/main.ts"></script>
+        <div class="wm-icon" style="left: 732px; top: 244px;">
+        <div style="display: flex; justify-content: center;">
+            <img src="img/user-home.png" width="32" height="32" />
+        </div>
+        <div>
+            Home
+        </div>
+    </div>
+    <div class="wm-icon" style="left: 720px; top: 308px;">
+        <div style="display: flex; justify-content: center;">
+            <img src="img/folder-applications.png" width="32" height="32" />
+        </div>
+        <div>
+            Applications
+        </div>
+    </div>
+    <div class="wm-icon" style="left: 720px; top: 372px;">
+        <div style="display: flex; justify-content: center;">
+            <img src="img/user-trash.png" width="32" height="32" />
+        </div>
+        <div>
+            Recycle Bin
+        </div>
+    </div>
 </body>
 
 </html>

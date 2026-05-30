@@ -1,35 +1,28 @@
 # smalltalk.js
 
-A simple(!) Smalltalk interpreter written in TypeScript.
+![smalltalk.js web app](img/screenshot.png)
+
+A simple Smalltalk interpreter written in TypeScript.
 
     npm install
     npm start
 
+* icons: https://github.com/jcherven/BeOS-r5-Icons
+* font : https://rsms.me/inter/
+
 ## Planned
 
-- [ ] simple window manager to move windows around
-- [ ] let user create windows
-- [ ] Workspace
-
-  The Smalltalk-80 workspace is a text editor.
-
-  For execution, one selects text, opens a popup with the middle mouse button,
-  an executes it with either `doIt` or `printIt`. The later will append the
-  result to the workspace.
-
-  In today's world that feels rather strange. So I'd rather go for something
-  like a terminal window with a GNU Readline alike prompt.
-
-  Instead of the middle button to open popups, I will also switch to the
-  right mouse button.
-
-  Once I got a basic understanding of Smalltalk, I may consider replacing the
-  lexer/parser/runtime with Amber.
-
+- [ ] window manager
+  - [X] move
+  - [ ] resize
+  - [ ] minimize
+  - [ ] close
+- [ ] Transcript, Workspace
+- [ ] Console:
+      A modernized variant of Transcript/Workspace,
+      with a GNU readline feel and executes when the
+      enter key is pressed.
 - [ ] System Browser
-
-- [ ] it seems that Smalltalk actually requires to declare variable names via | ... |
-  even in the REPL?
 
 ## Background Information on Smalltalk
 
@@ -110,5 +103,6 @@ When you go to look for a Smalltalk implementation, you'll usually find these th
 * [GNU Smalltalk](https://www.gnu.org/software/smalltalk/)
 * [Strongtalk](http://strongtalk.org/) Typed Smalltalk with JIT
 * [By the Blue Book](https://github.com/dbanay/Smalltalk) Smalltalk-80 VM in C++
+* [Rochus Keller's Smalltalk LUA & C++ VMs and Qt Browsers](https://github.com/rochus-keller/Smalltalk)
 * [Smalltalk Zoo](https://smalltalkzoo.thechm.org) Run some old VMs in the browser
 * ...
