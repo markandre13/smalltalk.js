@@ -1,0 +1,16 @@
+{
+  "name": "smalltalk",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "vite --open"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "vite": "^8.0.14"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

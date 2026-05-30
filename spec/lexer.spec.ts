@@ -1,6 +1,6 @@
 import { expect, it, describe } from "bun:test";
-import { Lexer } from "./Lexer";
-import { Type } from "./Type";
+import { Lexer } from "../src/lexer";
+import { Type } from "../src/type";
 
 describe("lex", () => {
     describe("identifier", () => {

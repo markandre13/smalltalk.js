@@ -1,5 +1,5 @@
-import { Node } from "./Node";
-import { Type } from "./Type";
+import { Node } from "./node";
+import { Type } from "./type";
 
 export class Lexer {
     data: string;
@@ -42,14 +42,14 @@ export class Lexer {
     }
 
     getc(): string {
-        let c = this.data[this.pos++];
-        if (c == '\n') {
+        let c = this.data[this.pos++]
+        if (c === '\n') {
             ++this.line;
             this.column = 1;
         } else {
             ++this.column; // FIXME: tabulators
         }
-        return c;
+        return c!;
     }
 
     ungetc(): void {
@@ -143,6 +143,9 @@ export class Lexer {
                         case ':':
                             this.state = 6;
                             continue;
+                        case '#':
+                            this.state = 7;
+                            continue
                         default:
                             if (Lexer.isAlpha(c)) {
                                 this.text = "";
@@ -183,7 +186,7 @@ export class Lexer {
                         // return new Node(Type.TKN_STRING, this.text)
                     }
                     break;
-                case 3: // // '...'
+                case 3: // '...'
                     if (c === '\'') {
                         this.state = 2;
                         break;
@@ -211,6 +214,12 @@ export class Lexer {
                     }
                     this.ungetc()
                     return new Node(Type.TKN_COLON);
+                case 7: // #...
+                    this.state = 0
+                    if (c === '(') {
+                        return new Node(Type.TKN_ARRAY_LITERAL)
+                    }
+                    throw Error(`Unknown character '${c}'`)
             }
             if (eof) {
                 if (this.state !== 0) {

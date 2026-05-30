@@ -23,6 +23,8 @@ export enum Type {
     // TKN_SELF
     // TKN_SUPER
 
+    TKN_ARRAY_LITERAL,
+
     SYN_TEMPORARIES,
     SYN_STATEMENTS,
     SYN_BLOCK_CLOSURE,

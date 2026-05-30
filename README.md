@@ -2,13 +2,38 @@
 
 A simple(!) Smalltalk interpreter written in TypeScript.
 
-('interpreter' as in 'not really fast'. it would be much smarter to compile to javascript and let the javascript jit take it from there... which is what Amber is doing.)
+    npm install
+    npm start
 
-My goal here is to learn Smalltalk and be able to run and share some examples I found in the literature on the web.
+## Planned
 
-This is a work in progress, only tests so far, run with `bun test` (bun.sh 0.5.7).
+- [ ] simple window manager to move windows around
+- [ ] let user create windows
+- [ ] Workspace
 
-## History
+  The Smalltalk-80 workspace is a text editor.
+
+  For execution, one selects text, opens a popup with the middle mouse button,
+  an executes it with either `doIt` or `printIt`. The later will append the
+  result to the workspace.
+
+  In today's world that feels rather strange. So I'd rather go for something
+  like a terminal window with a GNU Readline alike prompt.
+
+  Instead of the middle button to open popups, I will also switch to the
+  right mouse button.
+
+  Once I got a basic understanding of Smalltalk, I may consider replacing the
+  lexer/parser/runtime with Amber.
+
+- [ ] System Browser
+
+- [ ] it seems that Smalltalk actually requires to declare variable names via | ... |
+  even in the REPL?
+
+## Background Information on Smalltalk
+
+### Smalltalk's History
 
 The Smalltalk system with it's OOP, Live Coding, Code Browser, Refactoring tools, MVC, etc. has been a major influence on, not just the Apple Lisa/Macintosh, but also on Agile, Clean Code, Unit Testing (SUnit), TDD, Design Patterns, XP, MVVM, ...
 
@@ -17,7 +42,7 @@ Then it became overshadowed by C++, and finally became a niche in the 90's when 
 [VisualWorks](https://en.wikipedia.org/wiki/VisualWorks) is still around as a commerical grade Smalltalk (and also the origin of the MVVM pattern) while [Squeak](https://squeak.org) is aimed at the educational market and has replaced MVC with Morphic. E.g. the first versions of [Scratch](https://en.scratch-wiki.info/wiki/Smalltalk) were
 written with Squeak.
 
-## Distribution
+### Distribution
 
 When you go to look for a Smalltalk implementation, you'll usually find these things:
 
