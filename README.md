@@ -4,8 +4,14 @@
 
 A simple Smalltalk interpreter written in TypeScript.
 
+## How to run
+
+    git clone https://github.com/markandre13/smalltalk.js.git
+    cd smalltalkjs
     npm install
     npm start
+
+## Resources used
 
 * icons: https://github.com/jcherven/BeOS-r5-Icons
 * font : https://rsms.me/inter/
