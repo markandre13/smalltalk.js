@@ -65,8 +65,10 @@ const frameAreas: FrameArea[] = [
 class Decoration {
     frame: HTMLElement
     element: HTMLElement
-    titlebar: HTMLElement
+    // titlebar: HTMLElement
     constructor(wm: WindowManager, element: HTMLElement, title: string, x: number, y: number, w: number, h: number) {
+        this.element = element
+
         const frame = document.createElement("span")
         this.frame = frame
         frame.className = "wm-frame"
@@ -87,16 +89,19 @@ class Decoration {
 
         element.classList.add("wm-child")
 
+        // the have the title bar twice:
+        // * once as the 1st element in the back to create a box-shadow that
+        //   is underneath the other elements
+        // * once as the last element that overlays the other elements
+        const titlebarShadow = document.createElement('div')
+        // this.titlebar = titlebarShadow
+        titlebarShadow.appendChild(document.createTextNode(title))
+        titlebarShadow.className = 'wm-titlebar-shadow'
+
         const titlebar = document.createElement('div')
-        this.titlebar = titlebar
-        this.element = element
-        titlebar.dataset["wm"] = "true"
+        // this.titlebar = titlebarShadow
         titlebar.appendChild(document.createTextNode(title))
         titlebar.className = 'wm-titlebar'
-
-        const elementRect = element.getBoundingClientRect()
-        // titlebar.style.left = `${elementRect.left}px`
-        // titlebar.style.top = `${elementRect.top - 19}px`
 
         let move = false, downX = 0, downY = 0, desktop: DOMRect, frameRect: DOMRect
         titlebar.onpointerdown = (ev: PointerEvent) => {
@@ -111,7 +116,7 @@ class Decoration {
             titlebar.setPointerCapture(ev.pointerId)
             move = true
             desktop = document.body.getBoundingClientRect()
-            frameRect = frame.getBoundingClientRect()
+            frameRect = titlebar.getBoundingClientRect()
             downX = ev.clientX - frameRect.left
             downY = ev.clientY - frameRect.top
         }
@@ -123,8 +128,6 @@ class Decoration {
                 const top = minmax(ev.clientY - downY, keepSize - frameRect.height, desktop.height - keepSize)
                 frame.style.left = `${left}px`
                 frame.style.top = `${top}px`
-                // element.style.left = `${left}px`
-                // element.style.top = `${top + titleRect.height}px`
             }
         }
         titlebar.onpointerup = (ev: PointerEvent) => {
@@ -133,7 +136,7 @@ class Decoration {
                 move = false
             }
         }
-        frame.replaceChildren(titlebar, wmShadow, ...areas, element)
+        frame.replaceChildren(titlebarShadow, wmShadow, ...areas, element, titlebar)
         document.body.appendChild(frame)
     }
 }
@@ -150,26 +153,6 @@ class WindowManager {
     active?: Decoration
 
     constructor() {
-        // const mutate = new MutationObserver((mutations: MutationRecord[]) => {
-        //     // console.log(`childlist changed`)
-        //     // console.log(mutations)
-        //     for (const mutation of mutations) {
-        //         if (mutation.type === 'childList') {
-        //             for (const node of mutation.addedNodes) {
-        //                 if (node instanceof HTMLElement) {
-        //                     if (node.dataset["wm"] === "true") {
-        //                         continue
-        //                     }
-        //                     this.element2decoration.set(node, new Decoration(this, node))
-        //                 }
-        //             }
-        //             for (const node of mutation.removedNodes) {
-
-        //             }
-        //         }
-        //     }
-        // })
-        // mutate.observe(document.body, { childList: true })
     }
     appendChild(node: HTMLElement, title: string, x: number, y: number, w: number, h: number) {
         this.element2decoration.set(node, new Decoration(this, node, title, x, y, w, h))

@@ -30,6 +30,15 @@
             text-size-adjust: none;
             -webkit-text-size-adjust: none;
             font-family: "Inter", sans-serif;
+
+            --wm-frame-nw: #ffffff;
+            --wm-frame-se: #989898;
+            --wm-frame-bg: #e8e8e8;
+
+            --wm-frame-nw-active: #fcfc64;
+            --wm-frame-se-active: #986400;
+            --wm-frame-bg-active: #fcc800;
+
         }
 
         @supports (font-variation-settings: normal) {
@@ -60,7 +69,37 @@
             right: 0;
         }
 
-        .wm-frame.active > .wm-shadow {
+        .wm-frame>.wm-titlebar,
+        .wm-frame>.wm-titlebar-shadow {
+            position: absolute;
+            top: 1px;
+            cursor: move;
+            margin: 0;
+            font-size: calc((12/16) * 1rem);
+            height: 17px;
+            font-weight: 500;
+            padding: 1px 4px 1px 4px;
+            background-color: var(--wm-frame-bg);
+            border-top: var(--wm-frame-nw) 1px solid;
+            border-left: var(--wm-frame-nw) 1px solid;
+            border-right: var(--wm-frame-se) 1px solid;
+            border-bottom: none;
+        }
+
+        .wm-frame.active>.wm-titlebar {
+            background-color: var(--wm-frame-bg-active);
+            border-top: var(--wm-frame-nw-active) 1px solid;
+            border-left: var(--wm-frame-nw-active) 1px solid;
+            border-right: var(--wm-frame-se-active) 1px solid;
+        }
+
+        .wm-frame.active>.wm-titlebar-shadow {
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
+        }
+
+
+
+        .wm-frame.active>.wm-shadow {
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
         }
 
@@ -72,14 +111,28 @@
             bottom: 3px;
         }
 
+        .wm-frame>.wm-border {
+            background-color: var(--wm-frame-bg);
+        }
+
+        .wm-frame.active>.wm-border {
+            background-color: var(--wm-frame-bg-active);
+        }
+
         .wm-frame>.wm-nw {
             position: absolute;
             top: 20px;
             left: 0;
             width: 16px;
             height: 16px;
-            background-color: #bf8c19;
+            border-top: var(--wm-frame-nw) 1px solid;
+            border-left: var(--wm-frame-nw) 1px solid;
             cursor: nw-resize;
+        }
+
+        .wm-frame.active>.wm-nw {
+            border-top: var(--wm-frame-nw-active) 1px solid;
+            border-left: var(--wm-frame-nw-active) 1px solid;
         }
 
         .wm-frame>.wm-n {
@@ -88,8 +141,12 @@
             left: 16;
             right: 16px;
             height: 16px;
-            background-color: #bf8c19;
+            border-top: var(--wm-frame-nw) 1px solid;
             cursor: n-resize;
+        }
+
+        .wm-frame.active>.wm-n {
+            border-top: var(--wm-frame-nw-active) 1px solid;
         }
 
         .wm-frame>.wm-ne {
@@ -98,8 +155,14 @@
             width: 16px;
             right: 0px;
             height: 16px;
-            background-color: #bf8c19;
+            border-top: var(--wm-frame-nw) 1px solid;
+            border-right: var(--wm-frame-se) 1px solid;
             cursor: ne-resize;
+        }
+
+        .wm-frame.active.wm-ne {
+            border-top: var(--wm-frame-nw-active) 1px solid;
+            border-right: var(--wm-frame-se-active) 1px solid;
         }
 
         .wm-frame>.wm-e {
@@ -108,8 +171,12 @@
             width: 16px;
             right: 0px;
             bottom: 16px;
-            background-color: #bf8c19;
+            border-right: var(--wm-frame-se) 1px solid;
             cursor: e-resize;
+        }
+
+        .wm-frame.active>.wm-e {
+            border-right: var(--wm-frame-se-active) 1px solid;
         }
 
         .wm-frame>.wm-se {
@@ -118,8 +185,14 @@
             width: 16px;
             right: 0px;
             bottom: 0px;
-            background-color: #bf8c19;
+            border-right: var(--wm-frame-se) 1px solid;
+            border-bottom: var(--wm-frame-se) 1px solid;
             cursor: se-resize;
+        }
+
+        .wm-frame.active>.wm-se {
+            border-right: var(--wm-frame-se-active) 1px solid;
+            border-bottom: var(--wm-frame-se-active) 1px solid;
         }
 
         .wm-frame>.wm-s {
@@ -128,8 +201,12 @@
             left: 16px;
             right: 16px;
             bottom: 0px;
-            background-color: #bf8c19;
+            border-bottom: var(--wm-frame-se) 1px solid;
             cursor: s-resize;
+        }
+
+        .wm-frame.active>.wm-s {
+            border-bottom: var(--wm-frame-se-active) 1px solid;
         }
 
         .wm-frame>.wm-sw {
@@ -138,19 +215,29 @@
             left: 0px;
             width: 16px;
             bottom: 0px;
-            background-color: #bf8c19;
+            border-bottom: var(--wm-frame-se) 1px solid;
+            border-left: var(--wm-frame-nw) 1px solid;
             cursor: sw-resize;
         }
+
+        .wm-frame.active>.wm-sw {
+            border-bottom: var(--wm-frame-se-active) 1px solid;
+            border-left: var(--wm-frame-nw-active) 1px solid;
+        }
+
         .wm-frame>.wm-w {
             position: absolute;
             top: 36px;
             left: 0px;
             width: 16px;
             bottom: 16px;
-            background-color: #bf8c19;
+            border-left: var(--wm-frame-nw) 1px solid;
             cursor: w-resize;
         }
 
+        .wm-frame.active>.wm-w {
+            border-left: var(--wm-frame-nw-active) 1px solid;
+        }
 
         .wm-frame>.wm-child {
             position: absolute;
@@ -158,45 +245,12 @@
             background-color: #fff;
             color: #000;
             outline: none;
-            /* border: solid 2px #000; */
-
-            border-top: #ffffff 2px solid;
-            border-left: #ffffff 2px solid;
-            border-right: #a0a0a0 2px solid;
-            border-bottom: #a0a0a0 2px solid;
+            border: none;
 
             min-width: 80px;
             min-height: 50px;
-        }
-
-        .wm-frame.active>.wm-child {
-            border-top: #fff67a 2px solid;
-            border-left: #fff67a 2px solid;
-            border-right: #bf8c19 2px solid;
-            border-bottom: #bf8c19 2px solid;
-        }
-
-        .wm-frame>.wm-titlebar {
-            position: absolute;
-            cursor: move;
-            margin: 0;
-            font-size: calc((12/16) * 1rem);
-            font-weight: 500;
-            padding: 1px 4px 1px 4px;
-            background-color: #cfcfcf;
-            border-top: #ffffff 2px solid;
-            border-left: #ffffff 2px solid;
-            border-right: #a0a0a0 2px solid;
-        }
-
-        .wm-frame.active>.wm-titlebar {
-            background-color: #ffc000;
-            border-top: #fff67a 2px solid;
-            border-left: #fff67a 2px solid;
-            border-right: #bf8c19 2px solid;
-            box-shadow: 5px 0px 5px rgba(0, 0, 0, 0.3);
-        }
-
+        } 
+ 
         .wm-icon {
             font-size: calc((10/16) * 1rem);
             position: absolute;

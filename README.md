@@ -111,4 +111,7 @@ When you go to look for a Smalltalk implementation, you'll usually find these th
 * [By the Blue Book](https://github.com/dbanay/Smalltalk) Smalltalk-80 VM in C++
 * [Rochus Keller's Smalltalk LUA & C++ VMs and Qt Browsers](https://github.com/rochus-keller/Smalltalk)
 * [Smalltalk Zoo](https://smalltalkzoo.thechm.org) Run some old VMs in the browser
+* [The Medley Interlisp Project](https://interlisp.org) 
+  "Back then we were following in the footsteps of Lisp (especially Interlisp) which was one of the pioneers of _always running systems_."
+  -- Alan Kay
 * ...
