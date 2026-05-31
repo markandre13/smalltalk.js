@@ -5,6 +5,8 @@
 import { ST_Array } from "./classes/ST_Array"
 import { ST_Closure } from "./classes/ST_Closure"
 import { ST_Number } from "./classes/ST_Number"
+import { ST_Pen } from "./classes/ST_Pen"
+import { ST_Point } from "./classes/ST_Point"
 import { ST_Scope } from "./classes/ST_Scope"
 import { ST_String } from "./classes/ST_String"
 import type { Node } from "./node"
@@ -43,6 +45,9 @@ function st_method_name(s: string): string {
 export function makeGlobalScope() {
     const scope = new ST_Scope()
     scope.set("Array", ST_Array)
+    scope.set("Number", ST_Number)
+    scope.set("Pen", ST_Pen)
+    scope.set("Point", ST_Point)
     return scope
 }
 

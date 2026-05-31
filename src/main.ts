@@ -1,13 +1,18 @@
+import { Canvas } from "./Canvas"
 import { evaluate, makeGlobalScope, Transcript } from "./evaluate"
 import { program, setLexer } from "./parser"
 
 const workspace = document.createElement("pre")
-workspace.title = 'Transcript'
 workspace.textContent = 'Welcome to Smalltalk.JS - personal computing for children of all ages\n'
+
+const canvas = new Canvas()
 
 const scope = makeGlobalScope()
 
 const repl = document.createElement("pre")
+repl.innerText = `pen := Pen new.
+1 to: 150 do: [ :i | pen go: 10; turn: (i / 3). ]`
+
 repl.contentEditable = "true"
 repl.onkeydown = (ev: KeyboardEvent) => {
     if (ev.key === "Enter") {
@@ -52,14 +57,14 @@ interface FrameArea {
 }
 
 const frameAreas: FrameArea[] = [
-    { name: "n"},
-    { name: "ne"},
-    { name: "e"},
-    { name: "se"},
-    { name: "s"},
-    { name: "sw"},
-    { name: "w"},
-    { name: "nw"},
+    { name: "n" },
+    { name: "ne" },
+    { name: "e" },
+    { name: "se" },
+    { name: "s" },
+    { name: "sw" },
+    { name: "w" },
+    { name: "nw" },
 ]
 
 class Decoration {
@@ -80,10 +85,67 @@ class Decoration {
         const wmShadow = document.createElement("div")
         wmShadow.className = "wm-shadow"
 
+        let move = false, downX = 0, downY = 0, desktop: DOMRect, frameRect: DOMRect
+        let dir: string
+
+        const edgeDown = ((ev: PointerEvent) => {
+            const t = ev.target as HTMLElement
+            ev.preventDefault();
+            (ev.target as HTMLElement).setPointerCapture(ev.pointerId)
+            for (const c of t.classList) {
+                if (c !== 'wm-border') {
+                    dir = c.substring(3)
+                    switch (dir) {
+                        case 'se':
+                    }
+                }
+            }
+            downX = ev.clientX
+            downY = ev.clientY
+            frameRect = frame.getBoundingClientRect()
+            move = true
+        }).bind(this)
+        const edgeMove = ((ev: PointerEvent) => {
+            if (move) {
+                ev.preventDefault()
+                switch (dir) {
+                    case 'nw':
+                    case 'w':
+                    case 'sw':
+                        frame.style.left = `${frameRect.x + ev.clientX - downX}px`
+                        frame.style.width = `${frameRect.width - ev.clientX + downX}px`
+                        break
+                    case 'ne':
+                    case 'e':
+                    case 'se':
+                        frame.style.width = `${frameRect.width + ev.clientX - downX}px`
+                        break
+                }
+                switch (dir) {
+                    case 'nw':
+                    case 'n':
+                    case 'ne':
+                        frame.style.top = `${frameRect.y + ev.clientY - downY}px`
+                        frame.style.height = `${frameRect.height - ev.clientY + downY}px`
+                        break
+                    case 'se':
+                    case 's':
+                    case 'sw':
+                        frame.style.height = `${frameRect.height + ev.clientY - downY}px`
+                }
+            }
+        }).bind(this)
+        const edgeUp = (() => {
+            move = false
+        }).bind(this)
+
         const areas = []
         for (const area of frameAreas) {
             const a = document.createElement("div")
             a.className = `wm-border wm-${area.name}`
+            a.onpointerdown = edgeDown
+            a.onpointermove = edgeMove
+            a.onpointerup = edgeUp
             areas.push(a)
         }
 
@@ -103,7 +165,6 @@ class Decoration {
         titlebar.appendChild(document.createTextNode(title))
         titlebar.className = 'wm-titlebar'
 
-        let move = false, downX = 0, downY = 0, desktop: DOMRect, frameRect: DOMRect
         titlebar.onpointerdown = (ev: PointerEvent) => {
             ev.preventDefault()
             if (wm.active !== this) {
@@ -112,6 +173,8 @@ class Decoration {
                 }
                 wm.active = this
                 frame.classList.add("active")
+                // move window to the top (by moving it to the end of the list of children)
+                document.body.appendChild(frame)
             }
             titlebar.setPointerCapture(ev.pointerId)
             move = true
@@ -160,5 +223,6 @@ class WindowManager {
 }
 const wm = new WindowManager()
 
-wm.appendChild(workspace, "Transcript", 16, 20, 640, 240)
-wm.appendChild(repl, "Workspace", 16, 292, 640, 120)
+wm.appendChild(workspace, "Transcript", 16, 0, 640, 240)
+wm.appendChild(repl, "Workspace", 16, 240, 640, 120)
+wm.appendChild(canvas.div, "Display", 16, 360, 640, 400)
