@@ -19,10 +19,10 @@ function trace(name: string) {
 
 // 3.3.1
 // <<Smalltalk program>> ::= <<program element>>+ <<initialization ordering>> 
-// <<program element>> ::= <<class definition>> |
-// <<global definition>> |
-// <<pool definition>> |
-// <<program initializer definition>>
+// <<program element>> ::= <<class definition>>
+//                     | <<global definition>>
+//                     | <<pool definition>>
+//                     | <<program initializer definition>>
 
 // 3.3.5
 // <<program initializer definition >> ::= <initializer definition>
@@ -70,7 +70,11 @@ function temporaries(): Node | undefined {
 // 3.4.3 Initilizer Definition
 // <initializer definition> ::= [<temporaries>] [<statements>]
 function initializer_definition(): Node | undefined {
-    return statements()
+    const temp = temporaries()
+    const stmt = statements()
+    const init = new Node(Type.SYN_INITIALIZER_DEFINITION)
+    init.child.push(temp, stmt)
+    return init
 }
 
 // 3.4.4 Blocks

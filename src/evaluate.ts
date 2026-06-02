@@ -9,6 +9,7 @@ import { ST_Pen } from "./classes/ST_Pen"
 import { ST_Point } from "./classes/ST_Point"
 import { ST_Scope } from "./classes/ST_Scope"
 import { ST_String } from "./classes/ST_String"
+import { ST_Transcript } from "./classes/ST_Transcript"
 import type { Node } from "./node"
 import { Type } from "./type"
 
@@ -26,7 +27,7 @@ export class Transcript {
 /**
  * convert smalltalk method name into javascript one
  */
-function st_method_name(s: string): string {
+export function st_method_name(s: string): string {
     if (s === "+") {
         return "_add"
     }
@@ -48,6 +49,7 @@ export function makeGlobalScope() {
     scope.set("Number", ST_Number)
     scope.set("Pen", ST_Pen)
     scope.set("Point", ST_Point)
+    scope.set("Transcript", ST_Transcript)
     return scope
 }
 
@@ -56,6 +58,14 @@ export function evaluate(node: Node | undefined, scope: ST_Scope = makeGlobalSco
         return undefined
     }
     switch (node.type) {
+        case Type.SYN_INITIALIZER_DEFINITION: {
+            const s = new ST_Scope(scope)
+            let r
+            for (const n of node.child) {
+                r = evaluate(n, s) + ';'
+            }
+            return r
+        }
         case Type.SYN_STATEMENTS: {
             let r: Node | undefined = undefined
             for (let expr of node.child) {

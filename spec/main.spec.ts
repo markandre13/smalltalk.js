@@ -267,6 +267,9 @@ describe("parse", () => {
             expect(r.value).toBe(1)
         })
 
+        // 2 + 3     * 4 ;            - 1
+        // ( 2 + 3 ) * 4 ; ( 2 + 3 ) ; -1
+        // 20            ; 4
         it("2 + 3 * 4 ; - 1", () => {
             setLexer("2 + 3 * 4 ; - 1")
             const node = expression()
@@ -274,6 +277,10 @@ describe("parse", () => {
             expect(r.value).toBe(4)
         })
 
+        // 2 + 3 -> 5
+        // 5 * 4 -> 20
+        // 20 * 2 -> 40
+        // 20 + 1 -> 21
         it("2 + 3 * 4 * 2 ; + 1", () => {
             setLexer("2 + 3 * 4 * 2 ; + 1")
             const node = expression()
@@ -281,6 +288,10 @@ describe("parse", () => {
             expect(r.value).toBe(21)
         })
 
+        // 1 + 3 -> 4
+        // 4 * 4 -> 16
+        // 4 + 5 -> 9
+        // 4 + 6 -> 10
         it("1 + 3 * 4 ; + 5 ; + 6", () => {
             setLexer("1 + 3 * 4 ; + 5 ; + 6")
             const node = expression()
@@ -405,7 +416,7 @@ describe("parse", () => {
         })
     })
 
-    describe("block closure", () => {
+    describe("code block", () => {
         it("[||]", () => {
             setLexer("[||]")
             const node = program()

@@ -4,6 +4,8 @@
 
 A simple Smalltalk interpreter written in TypeScript.
 
+STATUS: Proof of Concept
+
 ## How to run
 
     git clone https://github.com/markandre13/smalltalk.js.git
