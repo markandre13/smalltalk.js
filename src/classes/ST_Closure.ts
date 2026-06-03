@@ -33,7 +33,7 @@ export class ST_Closure {
         }
         return closureScope;
     }
-
+    // to evaluate a closure, it's value() method is called
     value() {
         const closureScope = this._scope();
         return evaluate(this._stmt, closureScope);

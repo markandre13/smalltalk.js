@@ -85,7 +85,7 @@ let inMethodsFor = false
 let className: string
 let protocol: string
 
-const a = readFileSync("Smalltalk-80.sources")
+const a = readFileSync("files/Smalltalk-80.sources")
 for (let offset = 0, chunk_start = 0; offset < a.length; ++offset) {
     const byte = a[offset]!
     if (byte === EXCLAMATION_MARK) {
@@ -156,6 +156,7 @@ for (let offset = 0, chunk_start = 0; offset < a.length; ++offset) {
                     }
                 }
             }
+
             // if (!printed) {
             //     console.log(txt.trim())
             //     if (inMethodsFor) {
@@ -164,6 +165,16 @@ for (let offset = 0, chunk_start = 0; offset < a.length; ++offset) {
             //         console.log("=============================================================")
             //     }
             // }
+
+            // if (className! === "SystemDictionary") {
+                console.log(txt.trim())
+            //     if (inMethodsFor) {
+            //         console.log("-------------------------------------------------------------")
+            //     } else {
+            //         console.log("=============================================================")
+            //     }
+            // }
+
 
             chunk_start = offset + 1
         }

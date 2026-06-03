@@ -1,14 +1,13 @@
-import { Transcript } from "../evaluate"
 import { ST_Closure } from "./ST_Closure"
+import { ST_Transcript } from "./ST_Transcript"
 
 const D = 360 / (2.0 * Math.PI)
-
 
 export class ST_Number {
     value: number
     constructor(value: number) { this.value = value }
     toString() { return `${this.value}` }
-    printNl() { Transcript.transcript += `${this.value}\n` }
+    printNl() { ST_Transcript.show_(this.value); ST_Transcript.cr() }
     /**
      * Answer the sum of the receiver and aNumber
      */
