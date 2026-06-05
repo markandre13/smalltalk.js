@@ -1,4 +1,4 @@
-import { Canvas } from "../Canvas"
+import { Canvas } from "../viewkit/Canvas"
 import { ST_Number } from "./ST_Number"
 import { ST_Point } from "./ST_Point"
 

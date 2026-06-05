@@ -97,8 +97,6 @@
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
         }
 
-
-
         .wm-frame.active>.wm-shadow {
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
         }
@@ -250,13 +248,95 @@
 
             min-width: 80px;
             min-height: 50px;
-        } 
- 
+        }
+
         .wm-icon {
             font-size: calc((10/16) * 1rem);
             position: absolute;
             cursor: move;
             color: #fff;
+        }
+
+        .system-browser {
+            position: absolute;
+            font-size: calc((12/16) * 1rem);
+            overflow: hidden;
+        }
+
+        .system-browser-categories {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 25%;
+            bottom: 40%;
+        }
+
+        .system-browser-classes {
+            position: absolute;
+            left: 25%;
+            top: 0;
+            width: 25%;
+            bottom: calc(40% + (12/16) * 3rem);
+        }
+
+        .system-browser-code {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 60%;
+            bottom: 0;
+        }
+
+        .system-browser-class-types {
+            position: absolute;
+            left: 25%;
+            top: calc(60% - (12/16) * 3rem);
+            width: 25%;
+            bottom: 40%;
+        }
+
+        .system-browser-protocols {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 25%;
+            bottom: 40%;
+        }
+
+        .system-browser-methods {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 25%;
+            bottom: 40%;
+        }
+
+        .codeview {
+            font-family: "InterVariable", sans-serif;
+            margin: 0;
+            box-sizing: border-box;
+            border: inset 1px;
+            overflow: auto;
+            outline: none;
+        }
+
+        .listbox {
+            box-sizing: border-box;
+            border: inset 1px;
+            overflow: auto;
+            cursor: default;
+        }
+
+        .listbox>div {
+            white-space: nowrap;
+        }
+
+        .listbox>div.active {
+            background-color: #000;
+            color: #fff;
+        }
+            .listbox>div:hover:not(.active) {
+            background-color: #eee;
         }
     </style>
 </head>
