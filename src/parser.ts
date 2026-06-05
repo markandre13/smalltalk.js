@@ -157,29 +157,22 @@ function statements(): Node | undefined {
         return ret
     }
 
-    let stmts: Node | undefined = undefined
     let expr = expression()
     if (expr === undefined) {
         return undefined
     }
 
-    while (true) {
+    const stmts = new Node(Type.SYN_STATEMENTS)
+    do {
+        stmts.append(expr)
         const dot = lexer.lex()
         if (dot?.type !== Type.TKN_DOT) {
             lexer.unlex(dot)
             break
         }
-        let nextExpr = expression()
-        if (nextExpr === undefined) {
-            break
-        }
-        if (stmts === undefined) {
-            stmts = new Node(Type.SYN_STATEMENTS)
-            stmts.append(expr)
-        }
-        stmts.append(nextExpr)
-    }
-    return stmts === undefined ? expr : stmts
+        expr = expression()
+    } while(expr)
+    return stmts
 }
 
 // 3.4.5.1 Return statement

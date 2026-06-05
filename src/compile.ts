@@ -145,16 +145,20 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 r += compile(_tmps, _scope) + ';'
             }
             if (_stmt) {
-                if (_stmt.type === Type.SYN_STATEMENTS) {
+                if (_stmt.child.length > 1 ) {
                     if (_tmps === undefined) {
                         r += '{'
                     }
                     r += `${compile(_stmt, _scope)}}`
                 } else {
                     if (_tmps === undefined) {
-                        r += compile(_stmt, _scope)
+                        if (_stmt.child.length > 1) {
+                            r +=compile(_stmt, _scope)
+                        } else {
+                            r +=compile(_stmt.child[0], _scope)
+                        }
                     } else {
-                        r += `return ${compile(_stmt, _scope)}}`
+                        r += `${compile(_stmt, _scope)}}`
                     }
                 }
             } else {
