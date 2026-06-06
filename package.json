@@ -8,7 +8,9 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "vite": "^8.0.14"
+    "@vitest/browser-playwright": "^4.1.8",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.8"
   },
   "peerDependencies": {
     "typescript": "^5"

@@ -1,10 +1,8 @@
-import { CodeFile } from "../codefile";
-import { CodeView } from "./CodeView";
-import { ListModel } from "../appkit/ListModel";
-import { ListView } from "./ListView";
-import { NumberModel } from "../appkit/NumberModel";
-import { effect } from "../reactivity/computed";
-import { View } from "./View";
+import { CodeFile } from "../codefile"
+import { CodeView } from "./CodeView"
+import { ListView } from "./ListView"
+import { View } from "./View"
+import { SystemBrowserModel } from "../appkit/SystemBrowserModel"
 
 // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 // ┃                 System Browser                ┃
@@ -39,7 +37,6 @@ import { View } from "./View";
 // ┣━━━━━━━━━━━┫                                   ┃
 // ┃Methods    ┃                                   ┃
 // ┗━━━━━━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-
 export class SystemBrowser extends View {
     constructor() {
         super("div")
@@ -68,70 +65,42 @@ export class SystemBrowser extends View {
         const methodView = new ListView()
         methodView.title = "methods"
         methodView.classList.add("system-browser-methods")
-        this.appendChild(methodView);
+        this.appendChild(methodView)
 
         const codeView = new CodeView()
         codeView.title = "code"
         codeView.classList.add("system-browser-code")
-        this.appendChild(codeView);
+        this.appendChild(codeView)
 
         const filename = "files/Smalltalk-80.sources"
         fetch(filename)
             .then((response) => {
                 response.bytes().then((bytes) => {
                     const codefile = new CodeFile(filename, bytes)
+                    const model = new SystemBrowserModel(codefile)
 
-                    categoryView.list = makeList(() => codefile.categories.keys())
-                    categoryView.selection = new NumberModel(0)
+                    categoryView.list = model.categories
+                    categoryView.selection = model.selectedCategory
 
-                    classView.list = makeList(() => codefile
-                        .categories.get(categoryView.value!)!.keys())
-                    classView.selection = new NumberModel(0)
+                    classView.list = model.classes
+                    classView.selection = model.selectedClass
 
-                    classTypeView.list = makeList(() => ["instance", "class"])
-                    classTypeView.selection = new NumberModel(0)
+                    classTypeView.list = model.type
+                    classTypeView.selection = model.selectedType
 
-                    protocolView.list = makeList(() => codefile
-                        .categories.get(categoryView.value!)!
-                        .get(classView.value!)!
-                        .protocols.keys());
-                    protocolView.selection = new NumberModel(0)
+                    protocolView.list = model.protocols
+                    protocolView.selection = model.selectedProtocol
 
-                    methodView.list = makeList(() => codefile
-                        .categories.get(categoryView.value!)!
-                        .get(classView.value!)!
-                        .protocols.get(protocolView.value!)!
-                        .methods.keys())
-                    methodView.selection = new NumberModel(0)
+                    methodView.list = model.methods
+                    methodView.selection = model.selectedMethod
 
-                    effect(() => {
-                        const method = codefile
-                            .categories.get(categoryView.value!)!
-                            .get(classView.value!)!
-                            .protocols.get(protocolView.value!)!
-                            .methods.get(methodView.value!)
-                        codeView.element.innerHTML = codefile.getCode(method!)
-                    });
+                    codeView.model = model.code
 
                 }).catch((e) => {
                     console.error(e)
-                });
+                })
             }).catch((e) => {
                 console.error(e)
             })
     }
-}
-
-function makeList(fn: () => MapIterator<string> | Array<string>) {
-    const model = new ListModel([]);
-    effect(() => {
-        const iterator = fn();
-        if (iterator instanceof Array) {
-            model.value = iterator;
-        } else {
-            model.value = Array.from(iterator).sort()
-        }
-    })
-
-    return model
 }

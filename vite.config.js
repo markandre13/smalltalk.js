@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { playwright } from '@vitest/browser-playwright'
 
 export default defineConfig({
     build: {
@@ -8,8 +9,16 @@ export default defineConfig({
         },
     },
     test: {
+        environment: "node",
+        browser: {
+            provider: playwright(),
+            enabled: true,
+            instances: [
+                { browser: 'chromium', headless: true },
+            ],
+        },
         reporters: [
-            ['default', { summary: false }]
+            ['tree', { summary: false }]
         ]
     },
 })

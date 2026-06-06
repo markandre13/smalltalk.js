@@ -50,18 +50,24 @@ class ST_Protocol {
 }
 
 class ST_Class {
+    offsetInstance: number
+    offsetClass!: number
     name: ClassName
     superClassName: ClassName
     comment?: string
-    protocols = new Map<ProtocolName, ST_Protocol>()
+    protocols = [
+        new Map<ProtocolName, ST_Protocol>(),
+        new Map<ProtocolName, ST_Protocol>()
+    ]
     classProtocols = new Map<ProtocolName, ST_Protocol>()
-    constructor(className: ClassName, superClassName: ClassName) {
+    constructor(offset: number, className: ClassName, superClassName: ClassName) {
+        this.offsetInstance = offset
         this.name = className
         this.superClassName = superClassName
     }
 }
 
-enum ST_ProtocolType {
+export enum ST_ProtocolType {
     INSTANCE,
     CLASS
 }
@@ -121,12 +127,11 @@ export class CodeFile {
         const categories = this.categories
 
         while (true) {
-            const chunkStart = this.offset
+            const offset = this.offset
             const txt = this.chunk()
             if (txt === null) {
                 break
             }
-            const chunkEnd = this.offset
             let m: RegExpMatchArray | null
             if (inMethodsSection) {
                 if (txt === "") {
@@ -137,30 +142,20 @@ export class CodeFile {
                         throw Error(`OOPS: undefined class ${className}`)
                     }
 
-                    const selector = txt.split('\n')[0]!
-                    // console.log(`    ${className!} | ${protocol!} | ${selector}`)
-
-                    let protocols
-                    switch (type) {
-                        case ST_ProtocolType.CLASS:
-                            protocols = clazz.classProtocols
-                            break
-                        case ST_ProtocolType.INSTANCE:
-                            protocols = clazz.protocols
-                            break
-                        default:
-                            throw Error(`unknow type ${type}`)
+                    let selectorAndArgumentNames = txt.split('\n')[0]!.split(' ')
+                    let selector = ""
+                    for(let i=0; i<selectorAndArgumentNames.length; i += 2) {
+                        selector += selectorAndArgumentNames[i]
                     }
-                    if (protocols === undefined) {
-                        console.log(`OOPS: no ${ST_ProtocolType[type]} protocol ${protocol}`)
-                    }
+               
+                    const protocols = clazz.protocols[type]
                     let proto = protocols!.get(protocol)
                     if (proto === undefined) {
                         proto = new ST_Protocol()
                         protocols!.set(protocol, proto)
                     }
                     const method = new ST_Method()
-                    method.offset = chunkStart
+                    method.offset = offset
                     proto.methods.set(selector, method)
                     // printed = true
                 }
@@ -179,6 +174,13 @@ export class CodeFile {
                 // console.log(txt)
                 // console.log(`METHODS FOR CLASS ${className}, PROTOCOL: ${protocol}`)
                 clazz = this.classes.get(className)!
+                continue
+            }
+            m = txt.match(/^(\w+) class/)
+            if (m) {
+                className = m[1]!
+                clazz = this.classes.get(className)!
+                clazz.offsetClass = offset
                 continue
             }
             m = txt.match(/^(\w+) methodsFor: '(.*)'/)
@@ -221,7 +223,7 @@ export class CodeFile {
                 }
                 // console.log(txt)
                 // console.log(`CLASS ${subClass}: ${superClass}`)
-                const clazz = new ST_Class(subClass, superClass)
+                const clazz = new ST_Class(offset, subClass, superClass)
                 categoryEntry.set(subClass, clazz)
                 this.classes.set(subClass, clazz)
                 continue
@@ -276,8 +278,8 @@ export class CodeFile {
     //         "..."
     //         self error: 'comment only'
     // that would be a nice place to render a link
-    getCode(method: ST_Method) {
-        this.offset = method.offset
+    getCode(offset: number) {
+        this.offset = offset
         const code = this.chunk()!
         // console.log(code)
         return code

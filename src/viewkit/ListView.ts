@@ -25,7 +25,7 @@ export class ListView extends View {
         };
     }
     get value() {
-        if (this._list && this._selection)
+        if (this._list && this._selection && this._selection.value !== null)
             return this._list.at(this._selection.value);
         return undefined;
     }
@@ -61,7 +61,7 @@ export class ListView extends View {
                 children.push(item);
             }
         }
-        children[0]?.classList.add("active");
+        // children[0]?.classList.add("active");
         this.element.replaceChildren(...children);
     }
     updateSelection() {
