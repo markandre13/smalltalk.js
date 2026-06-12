@@ -1,15 +1,20 @@
 import { Canvas } from "./viewkit/Canvas"
-import { evaluate, makeGlobalScope, Transcript } from "./evaluate"
+import { evaluate, makeGlobalScope } from "./evaluate"
 import { program, setLexer } from "./parser"
 import { SystemBrowser } from "./viewkit/SystemBrowser"
 import { WindowManager } from "./viewkit/WindowManager"
+import { ST_Transcript } from "./classes/ST_Transcript"
+import { initialize } from "./initialize"
+
+initialize()
+const scope = makeGlobalScope()
 
 const workspace = document.createElement("pre")
 workspace.textContent = 'Welcome to Smalltalk.JS - personal computing for children of all ages\n'
 
 const canvas = new Canvas()
 
-const scope = makeGlobalScope()
+
 
 const repl = document.createElement("pre")
 repl.innerText = `pen := Pen new.
@@ -22,7 +27,7 @@ repl.onkeydown = (ev: KeyboardEvent) => {
         s.innerText = `# ${repl.textContent}\n`
         workspace.appendChild(s)
         try {
-            Transcript.transcript = ""
+            ST_Transcript.buffer = ""
             setLexer(repl.textContent)
             const node = program()
             const r = evaluate(node!, scope)
@@ -32,10 +37,10 @@ repl.onkeydown = (ev: KeyboardEvent) => {
                 s.innerText = `${r.value}\n`
                 workspace.appendChild(s)
             }
-            if (Transcript.transcript.length > 0) {
+            if (ST_Transcript.buffer.length > 0) {
                 const s = document.createElement("span")
                 s.style.color = "#0000ff"
-                s.innerText = `${Transcript.transcript}\n`
+                s.innerText = `${ST_Transcript.buffer}\n`
                 workspace.appendChild(s)
             }
         } catch (e) {

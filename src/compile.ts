@@ -2,17 +2,10 @@
  * transpile the smalltalk parse tree to javascript
  */
 
-import { ST_Array } from "./classes/ST_Array"
 import { ST_Scope } from "./classes/ST_Scope"
 import { makeGlobalScope, st_method_name } from "./evaluate"
 import type { Node } from "./node"
 import { Type } from "./type"
-
-export function cascade_messages(primary: any, ...arg: ((it: any) => any)[]) {
-    let result = primary
-    for (const c of arg) { result = c(primary) }
-    return result
-}
 
 // TODO: we actually want to match the lines of the output to the input
 

@@ -7,7 +7,7 @@ import { ST_Number } from "../src/classes/ST_Number"
 import { ST_Scope } from "../src/classes/ST_Scope"
 import { ST_String } from "../src/classes/ST_String"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
-
+import { initialize } from "../src/initialize"
 
 // TODO
 // [ ] classes
@@ -135,6 +135,8 @@ import { ST_Transcript } from "../src/classes/ST_Transcript"
 
 // Class comment
 // Object
+
+initialize()
 
 describe("parse", () => {
     describe("messages", () => {
@@ -424,7 +426,7 @@ describe("parse", () => {
     describe("code block", () => {
         it("[||]", () => {
             setLexer("[||]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
@@ -432,7 +434,7 @@ describe("parse", () => {
         })
         it("[|x|]", () => {
             setLexer("[|x|]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
@@ -444,7 +446,7 @@ describe("parse", () => {
         })
         it("[|x y|]", () => {
             setLexer("[|x y|]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
@@ -459,7 +461,7 @@ describe("parse", () => {
 
         it("[ ]", () => {
             setLexer("[ ]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
@@ -470,7 +472,7 @@ describe("parse", () => {
 
         it("[ :a | ]", () => {
             setLexer("[ :a | ]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
 
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
@@ -486,7 +488,7 @@ describe("parse", () => {
 
         it("[ :a :b | ]", () => {
             setLexer("[ :a :b | ]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
 
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
@@ -504,14 +506,15 @@ describe("parse", () => {
 
         it("[ 7 ]", () => {
             setLexer("[ 7 ]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
             expect(node?.child[0]?.child).toHaveLength(1)
-            expect(node?.child[0]?.child[0]?.type).toBe(Type.SYN_EXPRESSION)
-            expect(node?.child[0]?.child[0]?.child[0]?.type).toBe(Type.TKN_INTEGER)
-            expect(node?.child[0]?.child[0]?.child[0]?.text).toBe("7")
+            expect(node?.child[0]?.child[0]?.type).toBe(Type.SYN_STATEMENTS)
+            expect(node?.child[0]?.child[0]?.child[0]?.type).toBe(Type.SYN_EXPRESSION)
+            expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.type).toBe(Type.TKN_INTEGER)
+            expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.text).toBe("7")
 
             // const r = evaluate(node!)
             // expect(r instanceof ST_Closure).toBeTruthy()
@@ -519,7 +522,7 @@ describe("parse", () => {
 
         it("[ 7. 3. ]", () => {
             setLexer("[ 7. 3. ]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
@@ -538,7 +541,7 @@ describe("parse", () => {
 
         it("[ :a | b ]", () => {
             setLexer("[ :a | b. c. ]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
@@ -552,14 +555,14 @@ describe("parse", () => {
 
         it("[ :a | |b| c]", () => {
             setLexer("[ :a | |b| c]")
-            const node = program()
+            const node = expression()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_EXPRESSION)
             expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
             expect(node?.child[0]?.child).toHaveLength(3)
             expect(node?.child[0]?.child[0]?.type).toBe(Type.SYN_BLOCK_ARGUMENTS)
             expect(node?.child[0]?.child[1]?.type).toBe(Type.SYN_TEMPORARIES)
-            expect(node?.child[0]?.child[2]?.type).toBe(Type.SYN_EXPRESSION)
+            expect(node?.child[0]?.child[2]?.type).toBe(Type.SYN_STATEMENTS)
 
             // const r = evaluate(node!)
             // expect(r instanceof ST_Closure).toBeTruthy()
@@ -579,8 +582,8 @@ describe("parse", () => {
             expect(args.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
             expect(args.child[0]?.text).toBe("x")
 
-            expect(block_closure.child[1]?.type).toBe(Type.SYN_EXPRESSION)
-            const bodyExpr = block_closure.child[1]
+            expect(block_closure.child[1]?.type).toBe(Type.SYN_STATEMENTS)
+            const bodyExpr = block_closure.child[1]?.child[0]
             expect(bodyExpr?.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
             expect(bodyExpr?.child[0]?.text).toBe("x")
             expect(bodyExpr?.child[1]?.type).toBe(Type.SYN_MESSAGES)
@@ -669,7 +672,7 @@ describe("parse", () => {
             setLexer(`a := #('quick' 8 'fox')`)
             const node = program()
             node?.printTree()
-            const r = evaluate(node?.child[0])
+            const r = evaluate(node)
             expect(r).toBeInstanceOf(ST_Array)
             expect(r).toEqual([new ST_String('quick'), new ST_Number(8), new ST_String("fox")])
         })

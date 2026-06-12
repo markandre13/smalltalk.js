@@ -1,10 +1,8 @@
 import { expect, it, describe } from "vitest"
 import { expression, program, setLexer } from "../src/parser"
-import { cascade_messages, compile } from "../src/compile"
-import { ST_Number } from "../src/classes/ST_Number"
-import { ST_String } from "../src/classes/ST_String"
+import { compile } from "../src/compile"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
-import { ST_Array } from "../src/classes/ST_Array"
+import { initialize } from "../src/initialize"
 
 // while smalltalk has no type checks, it requires to declare variable names.
 // hence we could track names, rewrite them and throw errors
@@ -26,28 +24,7 @@ import { ST_Array } from "../src/classes/ST_Array"
 //   'I am a special dictionary that supports protocol for asking questions about the structure of the system.  My only instance is Smalltalk.'
 // yep, that seems to be the place were we put global classes and variables
 
-if (typeof window !== "undefined") {
-    console.log("Client-side code")
-} else {
-    // console.log("Server-side code")
-    const g = global as any
-    g.ST_Number = ST_Number
-    g.ST_String = ST_String
-    g.ST_Array = ST_Array
-    g.ST_Transcript = ST_Transcript
-    g.cascade_messages = cascade_messages
-    const f = Function.prototype as any
-    const h = new Function('...args', 'return this.apply(this, args)')
-    f.value = h
-    f.value_ = h
-    f.value_value_ = h
-    f.value_value_value_ = h
-    f.value_value_value_value_ = h
-    f.value_value_value_value_value_ = h
-    f.value_value_value_value_value_value_ = h
-    f.value_value_value_value_value_value_value_ = h
-    f.value_value_value_value_value_value_value_value_ = h
-}
+initialize()
 
 describe("compile", () => {
     describe("printNl", () => {

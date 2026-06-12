@@ -50,10 +50,11 @@ export function evaluate(node: Node | undefined, scope: ST_Scope = makeGlobalSco
     }
     switch (node.type) {
         case Type.SYN_INITIALIZER_DEFINITION: {
-            const s = new ST_Scope(scope)
             let r
             for (const n of node.child) {
-                r = evaluate(n, s) + ';'
+                if (n !== undefined) {
+                    r = evaluate(n, scope)
+                }
             }
             return r
         }
