@@ -1,11 +1,12 @@
 import { expect, it, describe } from "bun:test"
 import { Type } from "../src/type"
-import { expression, program, setLexer } from "../src/parser"
-import { evaluate, Transcript } from "../src/evaluate"
+import { expression, message_pattern, program, setLexer } from "../src/parser"
+import { evaluate } from "../src/evaluate"
 import { ST_Array } from "../src/classes/ST_Array"
 import { ST_Number } from "../src/classes/ST_Number"
 import { ST_Scope } from "../src/classes/ST_Scope"
 import { ST_String } from "../src/classes/ST_String"
+import { ST_Transcript } from "../src/classes/ST_Transcript"
 
 
 // TODO
@@ -148,9 +149,9 @@ describe("parse", () => {
             expect(node?.child[1]?.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
             expect(node?.child[1]?.child[0]?.text).toBe("printNl")
 
-            Transcript.transcript = ""
+            ST_Transcript.buffer = ""
             evaluate(node!)
-            expect(Transcript.transcript).toBe("hello\n")
+            expect(ST_Transcript.buffer).toBe("hello\n")
         })
 
         it("42 printNl", () => {
@@ -163,32 +164,32 @@ describe("parse", () => {
             expect(node?.child[1]?.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
             expect(node?.child[1]?.child[0]?.text).toBe("printNl")
 
-            Transcript.transcript = ""
+            ST_Transcript.buffer = ""
             evaluate(node!)
-            expect(Transcript.transcript).toBe("42\n")
+            expect(ST_Transcript.buffer).toBe("42\n")
         })
 
         describe("loop", () => {
             it("1 to: 20 do: [:x | x printNl ]", () => {
                 setLexer("1 to: 3 do: [:x | x printNl ]")
                 const node = expression()
-                Transcript.transcript = ""
+                ST_Transcript.buffer = ""
                 evaluate(node!)
-                expect(Transcript.transcript).toBe("1\n2\n3\n")
+                expect(ST_Transcript.buffer).toBe("1\n2\n3\n")
             })
             it("5 to: 15 by: 5 do: [:x | x printNl ]", () => {
                 setLexer("5 to: 15 by: 5 do: [:x | x printNl ]")
                 const node = expression()
-                Transcript.transcript = ""
+                ST_Transcript.buffer = ""
                 evaluate(node!)
-                expect(Transcript.transcript).toBe("5\n10\n15\n")
+                expect(ST_Transcript.buffer).toBe("5\n10\n15\n")
             })
             it("15 to: 5 by: -5 do: [:x | x printNl ]", () => {
                 setLexer("15 to: 5 by: -5 do: [:x | x printNl ]")
                 const node = expression()
-                Transcript.transcript = ""
+                ST_Transcript.buffer = ""
                 evaluate(node!)
-                expect(Transcript.transcript).toBe("15\n10\n5\n")
+                expect(ST_Transcript.buffer).toBe("15\n10\n5\n")
             })
         })
 
@@ -369,7 +370,11 @@ describe("parse", () => {
     describe("statements", () => {
         it("the result of the last statement is returned (1. 2.)", () => {
             setLexer("1. 2.")
-            const node = program()
+            let node = program()
+            node?.printTree()
+
+            expect(node?.type).toBe(Type.SYN_INITIALIZER_DEFINITION)
+            node = node?.child[1]
 
             expect(node?.type).toBe(Type.SYN_STATEMENTS)
             expect(node?.child[0]?.type).toBe(Type.SYN_EXPRESSION)
@@ -386,7 +391,7 @@ describe("parse", () => {
             setLexer("a:='hello'. b:='world'.")
             const node = program()
             const scope = new ST_Scope()
-            const r = evaluate(node!, scope)
+            const r = evaluate(node?.child[1], scope)
             expect(r.value).toBe('world')
             expect(scope.get("a").value).toBe("hello")
             expect(scope.get("b").value).toBe("world")
@@ -663,7 +668,8 @@ describe("parse", () => {
         it("a := #('quick' 8 'fox')", () => {
             setLexer(`a := #('quick' 8 'fox')`)
             const node = program()
-            const r = evaluate(node!)
+            node?.printTree()
+            const r = evaluate(node?.child[0])
             expect(r).toBeInstanceOf(ST_Array)
             expect(r).toEqual([new ST_String('quick'), new ST_Number(8), new ST_String("fox")])
         })
@@ -676,5 +682,51 @@ describe("parse", () => {
         //  separatedBy: [Transcript show: '.'].
 
         // (Smalltalk classes select: [:eachClass | eachClass name = 'ProfStef']) do: [:eachProfstef | eachProfstef next].
+    })
+
+    // u                 unary, no argument
+    // + arg           binary, one argument
+    // k: arg k: arg...  keyword, one or more arguments
+    describe("message pattern", () => {
+        it("unary", () => {
+            setLexer(`method`)
+            const node = message_pattern()
+            node?.printTree()
+            expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
+            expect(node?.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
+            expect(node?.child[0]?.text).toBe("method")
+        })
+        it("binary", () => {
+            setLexer(`+ arg`)
+            const node = message_pattern()
+            // node?.printTree()
+            expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
+            expect(node?.child[0]?.type).toBe(Type.TKN_BINARY)
+            expect(node?.child[0]?.text).toBe("+")
+        })
+        it("keyword", () => {
+            setLexer(`with: arg`)
+            const node = message_pattern()
+            // node?.printTree()
+            expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
+            expect(node?.child[0]?.type).toBe(Type.TKN_KEYWORD)
+            expect(node?.child[0]?.text).toBe("with:")
+            expect(node?.child[1]?.type).toBe(Type.TKN_IDENTIFIER)
+            expect(node?.child[1]?.text).toBe("arg")
+        })
+        it("keywords", () => {
+            setLexer(`with: arg do: stuff`)
+            const node = message_pattern()
+            node?.printTree()
+            expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
+            expect(node?.child[0]?.type).toBe(Type.TKN_KEYWORD)
+            expect(node?.child[0]?.text).toBe("with:")
+            expect(node?.child[1]?.type).toBe(Type.TKN_IDENTIFIER)
+            expect(node?.child[1]?.text).toBe("arg")
+            expect(node?.child[2]?.type).toBe(Type.TKN_KEYWORD)
+            expect(node?.child[2]?.text).toBe("do:")
+            expect(node?.child[3]?.type).toBe(Type.TKN_IDENTIFIER)
+            expect(node?.child[3]?.text).toBe("stuff")
+        })
     })
 })

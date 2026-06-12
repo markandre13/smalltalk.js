@@ -552,4 +552,15 @@ describe("compile", () => {
 
         // (Smalltalk classes select: [:eachClass | eachClass name = 'ProfStef']) do: [:eachProfstef | eachProfstef next].
     })
+
+    describe.skip("method definition", () => {
+        it("Point +", () => {
+            setLexer(`| delta deltaPoint |
+	deltaPoint ← delta asPoint.
+	↑x + deltaPoint x @ (y + deltaPoint y)`)
+            const node = program()
+            const code = compile(node)
+            console.log(code)
+        })
+    })
 })
