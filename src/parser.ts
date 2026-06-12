@@ -32,10 +32,80 @@ export function program(): Node | undefined {
 
 // 3.4.2
 // <method definition> ::= <message pattern> [<temporaries> ] [<statements>]
+export function method_definition() {
+    throw Error("not implemented yet")
+    // message_pattern()
+    // temporaries()
+    // statements()
+}
+
+// u                 unary, no argument
+// b + arg           binary, one argument
+// k: arg k: arg...  keyword, one or more arguments
 // <message pattern> ::= <unary pattern> | <binary pattern> | <keyword pattern>
+export function message_pattern() {
+    return unary_pattern() || binary_pattern() || keyword_pattern()
+}
 // <unary pattern> ::= unarySelector
+function unary_pattern() {
+    const t0 = lexer.lex()
+    if (t0 === undefined) {
+        return undefined
+    }
+    if (t0.type !== Type.TKN_IDENTIFIER) {
+        lexer.unlex(t0)
+        return undefined
+    }
+    const t1 = new Node(Type.SYN_MESSAGE_PATTERN)
+    t1.append(t0)
+    return t1
+}
+
 // <binary pattern> ::= binarySelector <method argument>
+function binary_pattern() {
+    const t0 = binary_selector()
+    if (t0 === undefined) {
+        return undefined
+    }
+    const t1 = lexer.lex()
+    if (t1 === undefined || t1.type !== Type.TKN_IDENTIFIER) {
+        throw Error(`expected argument name after ${t0.text}`)
+    }
+    const t2 = new Node(Type.SYN_MESSAGE_PATTERN)
+    t2.append(t0)
+    t2.append(t1)
+    return t2
+}
 // <keyword pattern> ::= (keyword <method argument>)+
+function keyword_pattern() {
+    let result: Node | undefined
+    while (true) {
+        const t0 = lexer.lex()
+        if (t0 === undefined) {
+            return result
+        }
+        if (t0.type !== Type.TKN_KEYWORD) {
+            lexer.unlex(t0)
+            return result
+        }
+        const t1 = lexer.lex()
+        if (t1 === undefined || t1.type !== Type.TKN_IDENTIFIER) {
+            throw Error(`expected argument name after ${t0.text}`)
+        }
+        if (result === undefined) {
+            result = new Node(Type.SYN_MESSAGE_PATTERN)
+        }
+        result.append(t0)
+        result.append(t1)
+    }
+}
+
+// TKN_BINARY (TODO: multiple occurences)
+// binaryCharacter ::=
+// '!' | '%' | '&'' | '*' | '+' | ',' | '/' | '<' | '=' | '>' | '?' | '@' | '\' | '~' | '|' | '-'
+// binarySelector ::= binaryCharacter+
+
+// keyword: TKN_KEYWORD
 
 // <temporaries> ::= '|' <temporary variable list> '|' 
 // <temporary variable list> ::= identifier*
@@ -171,7 +241,7 @@ function statements(): Node | undefined {
             break
         }
         expr = expression()
-    } while(expr)
+    } while (expr)
     return stmts
 }
 
@@ -318,9 +388,9 @@ function primary(): Node | undefined {
 }
 
 // 3.4.5.3 Messages
-// * unary messages take no arguments
-// * binary messages take one argument
-// * keyword messages take one or more arguments
+// u                 unary, no argument
+// b + arg           binary, one argument
+// k: arg k: arg...  keyword, one or more arguments
 // <messages> ::=
 //     (<unary message>+ <binary message>* [<keyword message>] )
 //   | (<binary message>+ [<keyword message>] )
@@ -541,7 +611,7 @@ function array_literal() {
         lexer.unlex(t0)
         return undefined
     }
-    while(true) {
+    while (true) {
         let t1 = literal()
         if (t1 !== undefined) {
             t0.append(t1)

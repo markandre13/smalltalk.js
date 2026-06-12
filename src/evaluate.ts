@@ -13,16 +13,7 @@ import { ST_Transcript } from "./classes/ST_Transcript"
 import type { Node } from "./node"
 import { Type } from "./type"
 
-// Transscript
-// open
-// show:
-// cr
-
 // (Boolean methodDictionary at: 'and:') source.
-
-export class Transcript {
-    static transcript: string = ""
-}
 
 /**
  * convert smalltalk method name into javascript one
