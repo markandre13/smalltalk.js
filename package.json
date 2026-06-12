@@ -1,19 +1,21 @@
 {
-  "name": "smalltalk",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "start": "vite --open",
-    "test": "vitest"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@vitest/browser-playwright": "^4.1.8",
-    "vite": "^8.0.14",
-    "vitest": "^4.1.8"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+    "name": "smalltalk.js",
+    "description": "A simple Smalltalk interpreter written in TypeScript.",
+    "author": "Mark-André Hopf <mhopf@mark13.org>",
+    "license": "AGPL-3.0",
+    "module": "index.ts",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "start": "vite --open",
+        "test": "vitest"
+    },
+    "devDependencies": {
+        "@vitest/browser-playwright": "^4.1.8",
+        "vite": "^8.0.14",
+        "vitest": "^4.1.8"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    }
 }
