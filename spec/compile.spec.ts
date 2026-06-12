@@ -1,4 +1,4 @@
-import { expect, it, describe, xit } from "bun:test"
+import { expect, it, describe } from "vitest"
 import { expression, program, setLexer } from "../src/parser"
 import { cascade_messages, compile } from "../src/compile"
 import { ST_Number } from "../src/classes/ST_Number"
@@ -83,7 +83,7 @@ describe("compile", () => {
             // console.log(r)
             expect(r).toBe("new ST_Number(1)")
         })
-        xit("float", () => {
+        it.skip("float", () => {
             setLexer("3.1415")
             const node = expression()
             const r = compile(node!)

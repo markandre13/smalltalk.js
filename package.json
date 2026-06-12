@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "vite --open"
+    "start": "vite --open",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/bun": "latest",

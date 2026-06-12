@@ -43,6 +43,8 @@ Then it became overshadowed by C++, and finally became a niche in the 90's when 
 [VisualWorks](https://en.wikipedia.org/wiki/VisualWorks) is still around as a commerical grade Smalltalk (and also the origin of the MVVM pattern) while [Squeak](https://squeak.org) is aimed at the educational market and has replaced MVC with Morphic. E.g. the first versions of [Scratch](https://en.scratch-wiki.info/wiki/Smalltalk) were
 written with Squeak.
 
+see also https://www.reddit.com/r/smalltalk/comments/66xm0c/gnu_smalltalk_a_free_implementation_of_the/
+
 ### Distribution
 
 When you go to look for a Smalltalk implementation, you'll usually find these things:

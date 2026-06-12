@@ -1,4 +1,4 @@
-import { expect, it, describe } from "bun:test"
+import { expect, it, describe } from "vitest"
 import { Type } from "../src/type"
 import { expression, message_pattern, program, setLexer } from "../src/parser"
 import { evaluate } from "../src/evaluate"
