@@ -688,7 +688,7 @@ describe("parse", () => {
     })
 
     // u                 unary, no argument
-    // + arg           binary, one argument
+    // + arg             binary, one argument
     // k: arg k: arg...  keyword, one or more arguments
     describe("message pattern", () => {
         it("unary", () => {

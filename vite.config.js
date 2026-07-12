@@ -17,6 +17,7 @@ export default defineConfig({
                 { browser: 'chromium', headless: true },
             ],
         },
+        hideSkippedTests: true,
         reporters: [
             ['tree', { summary: false }]
         ]

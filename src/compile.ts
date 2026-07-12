@@ -16,6 +16,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
     // console.log(`compile(${node})`)
 
     switch (node.type) {
+        case Type.SYN_METHOD_DEFINITION:
         case Type.SYN_INITIALIZER_DEFINITION: {
             const s = new ST_Scope(scope)
             let r = ''
@@ -25,6 +26,14 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 }
             }
             return r
+        }
+        case Type.SYN_MESSAGE_PATTERN: {
+            for (const n of node.child) {
+                if (n?.type === Type.TKN_IDENTIFIER) {
+                    scope.init(n!.text!, null)
+                }
+            }
+            return ''
         }
         case Type.SYN_TEMPORARIES: {
             for (const n of node.child) {
@@ -46,6 +55,16 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             }
             r += "return " + compile(node.child[node.child.length - 1], scope)
             return r
+        }
+        case Type.TKN_RETURN: {
+            return compile(node.child[node.child.length - 1], scope)
+        }
+        case Type.SYN_MESSAGES: {
+            // FIXME: 
+            if (node.child.length !== 2) {
+                throw Error('')
+            }
+            return `${compile(node.child[0]!, scope)}.${compile(node.child[1]!, scope)}`
         }
         case Type.SYN_EXPRESSION: {
             let result = compile(node.child[0]!, scope)
@@ -104,6 +123,9 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             if (a === null) {
                 return node.text!
             }
+            if (a !== undefined) {
+                return node.text!
+            }
             // FIXME: replace the replaceAll('_', ':') with a proper reverse implementation of st_method_name()
             throw Error(`undeclared identifier ${node.text?.replaceAll('_', ':')}`)
         }
@@ -113,17 +135,17 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             return `new ST_Number(${node.text})`
         case Type.SYN_BLOCK_CLOSURE: {
             let _scope = new ST_Scope(scope)
-            let _args: Node | undefined = undefined;
-            let _tmps: Node | undefined = undefined;
-            let _stmt: Node | undefined = undefined;
+            let _args: Node | undefined = undefined
+            let _tmps: Node | undefined = undefined
+            let _stmt: Node | undefined = undefined
             for (let child of node.child) {
                 switch (child?.type) {
                     case Type.SYN_BLOCK_ARGUMENTS:
                         _args = child
-                        break;
+                        break
                     case Type.SYN_TEMPORARIES:
                         _tmps = child
-                        break;
+                        break
                     default:
                         _stmt = child
                 }
@@ -138,7 +160,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 r += compile(_tmps, _scope) + ';'
             }
             if (_stmt) {
-                if (_stmt.child.length > 1 ) {
+                if (_stmt.child.length > 1) {
                     if (_tmps === undefined) {
                         r += '{'
                     }
@@ -146,9 +168,9 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 } else {
                     if (_tmps === undefined) {
                         if (_stmt.child.length > 1) {
-                            r +=compile(_stmt, _scope)
+                            r += compile(_stmt, _scope)
                         } else {
-                            r +=compile(_stmt.child[0], _scope)
+                            r += compile(_stmt.child[0], _scope)
                         }
                     } else {
                         r += `${compile(_stmt, _scope)}}`

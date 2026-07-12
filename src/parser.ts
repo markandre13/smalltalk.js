@@ -6,6 +6,7 @@ let lexer!: Lexer
 
 export function setLexer(program: string) {
     lexer = new Lexer(program)
+    return lexer
 }
 
 function trace(name: string) {
@@ -32,11 +33,22 @@ export function program(): Node | undefined {
 
 // 3.4.2
 // <method definition> ::= <message pattern> [<temporaries> ] [<statements>]
-export function method_definition() {
-    throw Error("not implemented yet")
-    // message_pattern()
-    // temporaries()
-    // statements()
+export function method_definition(): Node | undefined {
+    const pattern = message_pattern()
+    if (pattern === undefined) {
+        return undefined
+    }
+    const node = new Node(Type.SYN_METHOD_DEFINITION)
+    node.append(pattern)
+    const tmps = temporaries()
+    if (tmps) {
+        node.append(tmps)
+    }
+    const stmts = statements()
+    if (stmts) {
+        node.append(stmts)
+    }
+    return node
 }
 
 // u                 unary, no argument
@@ -218,36 +230,44 @@ function block_argument(): Node | undefined {
 //     (<return statement> ['.'] )
 //   | (<expression> ['.' [<statements>]])
 function statements(): Node | undefined {
-    const ret = return_statement()
-    if (ret !== undefined) {
-        const dot = lexer.lex()
-        if (dot?.type !== Type.TKN_DOT) {
-            lexer.unlex(dot)
+    trace("statements")
+
+    let stmts: Node | undefined //  = new Node(Type.SYN_STATEMENTS)
+    while (true) {
+        const ret = return_statement()
+        if (ret !== undefined) {
+            const dot = lexer.lex()
+            if (dot?.type !== Type.TKN_DOT) {
+                lexer.unlex(dot)
+            }
+            if (stmts === undefined) {
+                stmts = new Node(Type.SYN_STATEMENTS)
+            }
+            stmts.append(ret)
+            break
         }
-        return ret
-    }
 
-    let expr = expression()
-    if (expr === undefined) {
-        return undefined
-    }
-
-    const stmts = new Node(Type.SYN_STATEMENTS)
-    do {
+        let expr = expression()
+        if (expr === undefined) {
+            break
+        }
+        if (stmts === undefined) {
+            stmts = new Node(Type.SYN_STATEMENTS)
+        }
         stmts.append(expr)
         const dot = lexer.lex()
         if (dot?.type !== Type.TKN_DOT) {
             lexer.unlex(dot)
             break
         }
-        expr = expression()
-    } while (expr)
+    }
     return stmts
 }
 
 // 3.4.5.1 Return statement
 // <return statement> ::= returnOperator <expression>
 function return_statement(): Node | undefined {
+    trace("return_statement")
     const returnOperator = lexer.lex()
     if (returnOperator?.type !== Type.TKN_RETURN) {
         lexer.unlex(returnOperator)
@@ -437,6 +457,7 @@ function messages(): Node | undefined {
 
 // <binary message> ::= binarySelector <binary argument>
 function binary_message(): Node | undefined {
+    trace("binary_message")
     let t0 = binary_selector()
     if (t0 === undefined) {
         return undefined
@@ -453,6 +474,7 @@ function binary_message(): Node | undefined {
 
 // FIXME: binarySelector can also be ** or +++=+/ etc.
 function binary_selector(): Node | undefined {
+    trace("binary_selector")
     let t0 = lexer.lex()
     if (t0?.type === Type.TKN_BINARY) {
         return t0
@@ -463,7 +485,26 @@ function binary_selector(): Node | undefined {
 
 // <binary argument> ::= <primary> <unary message>*
 function binary_argument(): Node | undefined {
+    trace("binary_argument")
     let t0 = primary()
+    if (t0 === undefined) {
+        return
+    }
+    let msg: Node | undefined
+    while (true) {
+        let t1 = unary_message()
+        if (t1 === undefined) {
+            break
+        }
+        if (msg === undefined) {
+            msg = new Node(Type.SYN_MESSAGES) // FIXME.. shouldn't this be a stream of unary messages?
+            msg.append(t0)
+        }
+        msg.append(t1)
+    }
+    if (msg) {
+        return msg
+    }
     return t0
 }
 

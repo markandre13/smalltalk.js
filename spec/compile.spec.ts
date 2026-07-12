@@ -1,5 +1,5 @@
 import { expect, it, describe } from "vitest"
-import { expression, program, setLexer } from "../src/parser"
+import { expression, method_definition, program, setLexer } from "../src/parser"
 import { compile } from "../src/compile"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
 import { initialize } from "../src/initialize"
@@ -530,14 +530,29 @@ describe("compile", () => {
         // (Smalltalk classes select: [:eachClass | eachClass name = 'ProfStef']) do: [:eachProfstef | eachProfstef next].
     })
 
-    describe.skip("method definition", () => {
-        it("Point +", () => {
-            setLexer(`| delta deltaPoint |
-	deltaPoint ← delta asPoint.
-	↑x + deltaPoint x @ (y + deltaPoint y)`)
+    describe("method definition", () => {
+        it.only("return", () => {
+            setLexer(`|x y deltaPoint | x + deltaPoint x @ (y + deltaPoint y)`)
             const node = program()
+            node?.printTree()
             const code = compile(node)
             console.log(code)
+        })
+        it("Point +", () => {
+            const lexer = setLexer(`+ delta 
+	"Answer a new Point that is the sum of the receiver and delta (which is a Point 
+	or Number)."
+
+	| deltaPoint |
+	deltaPoint ← delta asPoint.
+	↑x + deltaPoint x @ (y + deltaPoint y)`)
+            const node = method_definition()
+            if (!lexer.eof()) {
+                console.log(`UNPARSED: ${lexer.unparsed()}`)
+            }
+            // node?.printTree()
+            // const code = compile(node)
+            // console.log(code)
         })
     })
 })

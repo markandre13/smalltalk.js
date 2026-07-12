@@ -40,6 +40,14 @@ export class Lexer {
     eof(): boolean {
         return this.pos >= this.data.length
     }
+    unparsed(): string {
+        let t = ''
+        for(let i=this.tokenStack.length-1; i>=0; --i) {
+            t += this.tokenStack[i]?.toString()
+        }
+        t+=this.data.substring(this.pos)
+        return t
+    }
 
     getc(): string {
         let c = this.data[this.pos++]
