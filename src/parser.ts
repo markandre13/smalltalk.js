@@ -225,10 +225,14 @@ function block_argument(): Node | undefined {
     return t1
 }
 
-// 3.4.5 Statements
-// <statements> ::=
-//     (<return statement> ['.'] )
-//   | (<expression> ['.' [<statements>]])
+/**
+ * 3.4.5 Statements
+ * ```
+ * <statements> ::=
+ *     (<return statement> ['.'] )
+ *   | (<expression> ['.' [<statements>]])
+ * ```
+ */
 function statements(): Node | undefined {
     trace("statements")
 
@@ -264,8 +268,12 @@ function statements(): Node | undefined {
     return stmts
 }
 
-// 3.4.5.1 Return statement
-// <return statement> ::= returnOperator <expression>
+/**
+ * 3.4.5.1 Return statement
+ * ```
+ * <return statement> ::= returnOperator <expression>
+ * ```
+ */
 function return_statement(): Node | undefined {
     trace("return_statement")
     const returnOperator = lexer.lex()
