@@ -13,23 +13,29 @@ import { ST_Transcript } from "./classes/ST_Transcript"
 import type { Node } from "./node"
 import { Type } from "./type"
 
-// (Boolean methodDictionary at: 'and:') source.
+const smalltalkMethodNameToJsMethodName = new Map<string, string>([
+    ["+", "_add"],
+    ["-", "_sub"],
+    ["*", "_mul"],
+    ["/", "_div"],
+    ["@", "_dot"],
+    ["<", "_l"],
+    ["<=", "_lt"],
+    [">", "_gt"],
+    [">=", "_gw"],
+    ["=", "_eq"],
+    ["~=", "_ne"],
+    // //
+    // \\
+])
 
 /**
  * convert smalltalk method name into javascript one
  */
 export function st_method_name(s: string): string {
-    if (s === "+") {
-        return "_add"
-    }
-    if (s === "-") {
-        return "_sub"
-    }
-    if (s === "*") {
-        return "_mul"
-    }
-    if (s === "/") {
-        return "_div"
+    const name = smalltalkMethodNameToJsMethodName.get(s)
+    if (name !== undefined) {
+        return name
     }
     return s.replace(/:/g, "_")
 }
