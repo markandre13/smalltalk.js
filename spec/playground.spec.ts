@@ -93,13 +93,13 @@ describe("playground", () => {
                 setLexer("1 a. 2 b.")
                 const node = program()
                 const code = compile(node)
-                expect(code).to.equal("(new ST_Number(1)).a();return (new ST_Number(2)).b();")
+                expect(code).to.equal("(new ST_Number(1)).a();(new ST_Number(2)).b();")
             })
             it("a := 1 + 2 + 3", () => {
                 setLexer("a := 1 + 2 + 3")
                 const node = program()
                 const code = compile(node)
-                expect(code).to.equal("return a=(new ST_Number(1))._add(new ST_Number(2))._add(new ST_Number(3));")
+                expect(code).to.equal("a=(new ST_Number(1))._add(new ST_Number(2))._add(new ST_Number(3));")
             })
             it("^ 1 + 2 + 3", () => {
                 setLexer("^ 1 + 2 + 3")
@@ -107,23 +107,21 @@ describe("playground", () => {
                 const code = compile(node)
                 expect(code).to.equal("return (new ST_Number(1))._add(new ST_Number(2))._add(new ST_Number(3));")
             })
-            it("assign cascaded message", () => {
-                setLexer("a := 1 + 2 ; + 3 ; + 4. 1.")
+            it("assign cascaded message: a := 1 + 2 ; + 3 ; + 4.", () => {
+                setLexer("a := 1 + 2 ; + 3 ; + 4.")
                 const node = program()
-                // node?.printTree()
                 const code = compile(node)
-                // console.log(code)
-                expect(code).to.equal("{let _tmp=new ST_Number(1);(_tmp)._add(new ST_Number(2));(_tmp)._add(new ST_Number(3));a=(_tmp)._add(new ST_Number(4))};return new ST_Number(1);")
+                expect(code).to.equal("{let _tmp=new ST_Number(1);(_tmp)._add(new ST_Number(2));(_tmp)._add(new ST_Number(3));a=(_tmp)._add(new ST_Number(4))};")
             })
-            it("return cascaded message", () => {
-                setLexer("^ 1 + 2 ; + 3 ; + 4. 1.")
+            it("return cascaded message: ^ 1 + 2 ; + 3 ; + 4.", () => {
+                setLexer("^ 1 + 2 ; + 3 ; + 4.")
                 const node = program()
-                // node?.printTree()
                 const code = compile(node)
-                // console.log(code)
                 expect(code).to.equal("{let _tmp=new ST_Number(1);(_tmp)._add(new ST_Number(2));(_tmp)._add(new ST_Number(3));return (_tmp)._add(new ST_Number(4))};")
             })
-
+            // TODO: program          -> last value is to be returned
+            // TODO: block statements -> last value is to be returned
+            // [ 3. 5. 7. ] value.  -> 7
         })
     })
     // describe("method definition", () => {

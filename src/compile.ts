@@ -48,16 +48,14 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             return `${node.child.map(it => it!.text).join(",")}`
         }
         case Type.SYN_STATEMENTS: {
-            // TODO: test me
             let r = ''
             for (let i = 0; i < node.child.length - 1; ++i) {
                 r += compile(node.child[i], scope) + ';'
             }
-            r += "return " + compile(node.child[node.child.length - 1], scope)
+            // r += "return " + compile(node.child[node.child.length - 1], scope)
+            r += compile(node.child[node.child.length - 1], scope)
             return r
-        }
-        case Type.TKN_RETURN: {
-            return compile(node.child[node.child.length - 1], scope)
+            // return compileExpression("return", node, scope)
         }
         case Type.SYN_MESSAGES: {
             // FIXME: 
@@ -67,10 +65,13 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             return `${compile(node.child[0]!, scope)}.${compile(node.child[1]!, scope)}`
         }
         case Type.SYN_EXPRESSION: {
-            return compileExpression(node, scope)
+            return compileExpression("", node, scope)
+        }
+        case Type.TKN_RETURN: {
+            return compileExpression(`return `, node.child[0]!, scope)
         }
         case Type.TKN_ASSIGNMENT: {
-            return `${node.child[0]!.text}=${compile(node.child[1]!, scope)}`
+            return compileExpression(`${node.child[0]!.text}=`, node.child[1]!, scope)
         }
         case Type.TKN_IDENTIFIER: {
             const a = scope.get(node.text!)
@@ -170,10 +171,12 @@ function compileMessage(primary: string, node: Node, scope: ST_Scope) {
                 : `(${primary}).${methodName}(${args.join(',')})`
         }
     }
-    throw Error("Not implemented yet")
+    throw Error(`compileMessage(...,${Type[node.type]},...) not implemented`)
 }
 
-function compileExpression(node: Node, scope: ST_Scope): string {
+function compileExpression(stmt: string, node: Node, scope: ST_Scope): string {
+    // console.log("COMPILE EXPRESSION")
+    // node.printTree()
     let result = compile(node.child[0]!, scope)
     // console.log(`RESULT: ${result}`)
     if (result === undefined) {
@@ -183,13 +186,13 @@ function compileExpression(node: Node, scope: ST_Scope): string {
         throw Error(`'${node.child[0]?.text}' is null`)
     }
     if (node.child.length === 1) {
-        return result
+        return stmt+result
     } else if (node.child.length === 2) {
         // console.log('NO CASCADE')
         for (let n of node.child[1]!.child) {
             result = compileMessage(result, n!, scope)
         }
-        return result
+        return stmt+result
     } else {
         // see NCITS J20 DRAFT of ANSI Smalltalk Standard rev1.9: 3.4.5.3.3 Cascades
 
@@ -209,7 +212,11 @@ function compileExpression(node: Node, scope: ST_Scope): string {
             for (let n of node.child[i]!.child) {
                 cascadedMsg = compileMessage(cascadedMsg, n!, scope)
             }
-            result += ';' + cascadedMsg
+            if (i === node.child.length - 1) {
+                result += ';' + stmt + cascadedMsg
+            } else {
+                result += ';' + cascadedMsg
+            }
         }
         return `{${result}}`
     }
