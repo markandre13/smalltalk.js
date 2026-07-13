@@ -321,32 +321,65 @@ function assignment(): Node | undefined {
     return assignmentOperator
 }
 
-// 3.4.5.2 Expressions
-// <basic expression> ::= <primary> [<messages> <cascaded messages>]
-// <cascaded messages> ::= (';' <messages>)*
-// NOTE: for the sake of parsing, we implement the above two rules as one:
-// <basic expression> ::= <primary> [<messages> (';' <messages>)* ]
-// NOTE: Smalltalk-80, unlike ANSI Smalltalk, expects only one message after the ';'
+/**
+ * 3.4.5.2 Expressions
+ *
+ * Without cascaded messages
+ * ```text
+ * SYN_EXPRESSION
+ *   PRIMARY       1
+ *   SYN_MESSAGES  + 2
+ * ```
+ * 
+ * With cascaded messages
+ * ```text
+ * SYN_EXPRESSION
+ *   PRIMARY       1
+ *   SYN_MESSAGES  + 2    value to be used for cascaded message
+ *   SYN_MESSAGES  + 3 ;  1st cascaded message
+ *   SYN_MESSAGES  + 4    2nd cascaded message
+ * ```
+ *
+ * SYNTAX 
+ * ```
+ * <basic expression> ::= <primary> [<messages> <cascaded messages>]
+ * <cascaded messages> ::= (';' <messages>)*
+ * ```
+ * NOTE: for the sake of parsing, we implement the above two rules as one:
+ * ```
+ * <basic expression> ::= <primary> [<messages> (';' <messages>)* ]
+ * ```
+ * NOTE: Smalltalk-80, unlike ANSI Smalltalk, expects only one message after the ';'
+ */
 function basic_expression(): Node | undefined {
     trace("basic_expression")
-    let t0 = primary()
-    if (t0 === undefined) {
-        return t0
+    let p = primary()
+    if (p === undefined) {
+        return p
     }
-    let n = new Node(Type.SYN_EXPRESSION)
-    n.append(t0)
+    let expr = new Node(Type.SYN_EXPRESSION)
+    expr.append(p)
 
-    let semicolon: Node | undefined = undefined
+    let semicolon: Node | undefined
     while (true) {
-        let t1 = messages()
-        if (t1 !== undefined) {
-            n.append(t1)
-        } else {
+        let msgs = messages()
+        if (msgs === undefined) {
             if (semicolon !== undefined) {
                 lexer.unlex(semicolon)
-                break
             }
+            break
         }
+        if (expr.child.length === 2) {
+            // begin cascaded messages
+            const m = new Node(Type.SYN_MESSAGES)
+            m.append(expr.child[1]!.child[
+                expr.child[1]!.child!.length - 1
+            ]!)
+            expr.child[1]!.child!.length = expr.child[1]!.child!.length - 1
+            expr.append(m)
+        }
+
+        expr.append(msgs)
 
         semicolon = lexer.lex()
         if (semicolon?.type !== Type.TKN_SEMICOLON) {
@@ -355,7 +388,7 @@ function basic_expression(): Node | undefined {
         }
     }
 
-    return n
+    return expr
 }
 
 // 3.4.5.2 Expressions
@@ -513,6 +546,7 @@ function unary_message(): Node | undefined {
     trace("unary_message")
     let t0 = lexer.lex()
     if (t0?.type === Type.TKN_IDENTIFIER) {
+        t0.type = Type.SYN_UNARY
         return t0
     }
     lexer.unlex(t0)
@@ -553,8 +587,45 @@ function keyword_message(): Node | undefined {
 // <keyword argument> ::= <primary> <unary message>* <binary message>* 
 function keyword_argument() {
     trace("keyword_argument")
-    let t0 = primary()
-    return t0
+    let p = primary()
+    if (p === undefined) { return p }
+
+    let expr: Node | undefined
+    let msgs: Node | undefined
+
+    while (true) {
+        let u = unary_message()
+        if (u === undefined) {
+            break
+        }
+        if (expr === undefined) {
+            expr = new Node(Type.SYN_EXPRESSION)
+            msgs = new Node(Type.SYN_MESSAGES)
+            expr.append(p!)
+            expr.append(msgs)
+        }
+        msgs!.append(u)
+    }
+
+    while (true) {
+        let b = binary_message()
+        if (b === undefined) {
+            break
+        }
+        if (expr === undefined) {
+            expr = new Node(Type.SYN_EXPRESSION)
+            msgs = new Node(Type.SYN_MESSAGES)
+            expr.append(p!)
+            expr.append(msgs)
+        }
+        msgs!.append(b)
+    }
+
+    if (expr) {
+        return expr
+    }
+
+    return p
 }
 
 function keyword(): Node | undefined {
