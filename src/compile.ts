@@ -54,23 +54,20 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             }
             const last = node.child[node.child.length - 1]!
             switch (last.type) {
-                case Type.SYN_EXPRESSION: {
+                case Type.SYN_EXPRESSION:
                     r += compileExpression("return ", last, scope)
-                } break
-                case Type.TKN_RETURN: {
-                    r += r += compile(last, scope)
-                } break
-                case Type.TKN_ASSIGNMENT: {
+                    break
+                case Type.TKN_RETURN:
+                    r += compile(last, scope)
+                    break
+                case Type.TKN_ASSIGNMENT:
                     r += compileExpression(`${last.child[0]!.text}=`, last.child[1]!, scope)
                         + `;return ${last.child[0]!.text}`
-                } break
+                    break
                 default:
                     throw Error(`last statement of type ${Type[last.type]} not implemented yet`)
             }
-            // r += "return " + compile(node.child[node.child.length - 1], scope)
-            // r += compile(node.child[node.child.length - 1], scope)
             return r
-            // return compileExpression("return", node, scope)
         }
         case Type.SYN_MESSAGES: {
             // FIXME: 
@@ -97,6 +94,13 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             if (a === null) {
                 return node.text!
             }
+            if (a === ST_Scope.localVariable) {
+                return node.text!
+            }
+            if (a === ST_Scope.objectVariable) {
+                return `this.${node.text}`
+            }
+
             if (a !== undefined) {
                 return node.text!
             }

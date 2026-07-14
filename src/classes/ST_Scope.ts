@@ -1,30 +1,35 @@
 
+
 export class ST_Scope {
-    private parent?: ST_Scope;
+    static readonly localVariable = Symbol("local-variable")
+    static readonly objectVariable = Symbol("object-variable")
+
+    private parent?: ST_Scope
     private map = new Map<string, any>();
     constructor(parent: ST_Scope | undefined = undefined) {
-        this.parent = parent;
+        this.parent = parent
     }
     init(name: string, variable: any) {
-        this.map.set(name, variable);
+        this.map.set(name, variable)
     }
     set(name: string, variable: any) {
-        let scope: ST_Scope | undefined = this;
+        let scope: ST_Scope | undefined = this
         while (scope !== undefined && !scope.map.has(name)) {
-            scope = scope.parent;
+            scope = scope.parent
         }
         if (scope === undefined) {
-            scope = this;
+            scope = this
         }
-        scope.map.set(name, variable);
+        scope.map.set(name, variable)
     }
     get(name: string): any {
-        if (!this.map.has(name)) {
-            if (this.parent === undefined) {
-                throw Error(`variable ${name} does not exist`);
-            }
-            return this.parent.get(name);
+        const value = this.map.get(name)
+        if (value !== undefined) {
+            return value
         }
-        return this.map.get(name);
+        if (this.parent === undefined) {
+            throw Error(`variable ${name} does not exist`)
+        }
+        return this.parent.get(name)
     }
 }

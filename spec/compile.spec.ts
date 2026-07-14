@@ -3,6 +3,11 @@ import { expression, method_definition, program, setLexer } from "../src/parser"
 import { compile } from "../src/compile"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
 import { initialize } from "../src/initialize"
+import { makeGlobalScope } from "../src/evaluate"
+import { ST_Scope } from "../src/classes/ST_Scope"
+import { Type } from "../src/type"
+import { ST_Point } from "../src/classes/ST_Point"
+import { ST_Number } from "../src/classes/ST_Number"
 
 // while smalltalk has no type checks, it requires to declare variable names.
 // hence we could track names, rewrite them and throw errors
@@ -531,14 +536,14 @@ describe("compile", () => {
     })
 
     describe("method definition", () => {
-        it.only("return", () => {
-            setLexer(`|x y deltaPoint | x + deltaPoint x @ (y + deltaPoint y)`)
-            const node = program()
-            node?.printTree()
-            const code = compile(node)
-            console.log(code)
-        })
-        it("Point +", () => {
+        // it.only("return", () => {
+        //     setLexer(`|x y deltaPoint | x + deltaPoint x @ (y + deltaPoint y)`)
+        //     const node = program()
+        //     node?.printTree()
+        //     const code = compile(node)
+        //     console.log(code)
+        // })
+        it.only("Point +", () => {
             const lexer = setLexer(`+ delta 
 	"Answer a new Point that is the sum of the receiver and delta (which is a Point 
 	or Number)."
@@ -546,13 +551,38 @@ describe("compile", () => {
 	| deltaPoint |
 	deltaPoint ← delta asPoint.
 	↑x + deltaPoint x @ (y + deltaPoint y)`)
-            const node = method_definition()
+            const node = method_definition()!
             if (!lexer.eof()) {
                 console.log(`UNPARSED: ${lexer.unparsed()}`)
             }
             // node?.printTree()
-            // const code = compile(node)
+            const scope = makeGlobalScope()
+            const obj = new ST_Scope(scope)
+            obj.set("x", ST_Scope.objectVariable)
+            obj.set("y", ST_Scope.objectVariable)
+            let code = compile(node, obj)
             // console.log(code)
+            expect(code).to.equal(";let deltaPoint;deltaPoint=(delta).asPoint();return (this.x)._add((deltaPoint).x())._dot((this.y)._add((deltaPoint).y()));")
+
+            const methodDefinition = node
+            const messagePattern = methodDefinition.child[0]!
+            const args: any[] = []
+            if (messagePattern.child[0]?.type === Type.TKN_BINARY) {
+                args.push(messagePattern.child[1]?.text)
+            } else {
+                throw Error("yikes")
+            }
+            args.push(code);
+            const pointPlus = new Function(...args)
+            const This = new ST_Point(new ST_Number(3), new ST_Number(5))
+            const delta = new ST_Point(new ST_Number(8), new ST_Number(13))
+            // pointPlus(delta)
+
+            let r: ST_Point
+            ;let deltaPoint;deltaPoint=(delta).asPoint();r= (This.__x)._add((deltaPoint).x())._dot((This.__y)._add((deltaPoint).y()));
+            // console.log(r)
+            expect(r.x().value).to.equal(11)
+            expect(r.y().value).to.equal(18)
         })
     })
 })

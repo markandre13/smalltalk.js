@@ -1,4 +1,5 @@
 import { ST_Closure } from "./ST_Closure"
+import { ST_Point } from "./ST_Point"
 import { ST_Transcript } from "./ST_Transcript"
 
 const D = 360 / (2.0 * Math.PI)
@@ -24,6 +25,9 @@ export class ST_Number {
      * Answer the result of dividing receiver by aNumber
      */
     _div(a: ST_Number) { return new ST_Number(this.value / a.value) }
+
+    _dot(a: ST_Number) { return new ST_Point(this, a) }
+
     /**
      * Integer quotient defined by division with truncation toward negative
      * infinity. 9//4 = 2, -9//4 = -3, -0.9//0.4 = -3
