@@ -1,4 +1,4 @@
-import { ST_Closure } from "./ST_Closure"
+// import { ST_Closure } from "./ST_Closure"
 import { ST_Point } from "./ST_Point"
 import { ST_Transcript } from "./ST_Transcript"
 
@@ -37,19 +37,19 @@ export class ST_Number {
     /**
      * Create an ...
      */
-    to_do_(to: ST_Number, block: ST_Closure) {
+    to_do_(to: ST_Number, block: Function) {
         for (let i = new ST_Number(this.value); i.value <= to.value; ++i.value) {
-            block.value_(i)
+            (block as any).value_(i)
         }
     }
-    to_by_do_(to: ST_Number, by: ST_Number, block: ST_Closure) {
+    to_by_do_(to: ST_Number, by: ST_Number, block: Function) {
         if (by.value > 0) {
             for (let i = new ST_Number(this.value); i.value <= to.value; i.value += by.value) {
-                block.value_(i)
+                (block as any).value_(i)
             }
         } else {
             for (let i = new ST_Number(this.value); i.value >= to.value; i.value += by.value) {
-                block.value_(i)
+                (block as any).value_(i)
             }
         }
     }

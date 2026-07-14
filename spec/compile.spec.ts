@@ -536,33 +536,27 @@ describe("compile", () => {
     })
 
     describe("method definition", () => {
-        // it.only("return", () => {
-        //     setLexer(`|x y deltaPoint | x + deltaPoint x @ (y + deltaPoint y)`)
-        //     const node = program()
-        //     node?.printTree()
-        //     const code = compile(node)
-        //     console.log(code)
-        // })
-        it.only("Point +", () => {
-            const lexer = setLexer(`+ delta 
-	"Answer a new Point that is the sum of the receiver and delta (which is a Point 
-	or Number)."
+        it("Point + delta", () => {
+            const lexer = setLexer(`
+                + delta 
 
-	| deltaPoint |
-	deltaPoint ← delta asPoint.
-	↑x + deltaPoint x @ (y + deltaPoint y)`)
+                "Answer a new Point that is the sum of the receiver and delta (which is a Point 
+                or Number)."
+
+                | deltaPoint |
+                deltaPoint ← delta asPoint.
+                ↑x + deltaPoint x @ (y + deltaPoint y)`)
             const node = method_definition()!
             if (!lexer.eof()) {
                 console.log(`UNPARSED: ${lexer.unparsed()}`)
             }
-            // node?.printTree()
             const scope = makeGlobalScope()
-            const obj = new ST_Scope(scope)
-            obj.set("x", ST_Scope.objectVariable)
-            obj.set("y", ST_Scope.objectVariable)
-            let code = compile(node, obj)
-            // console.log(code)
-            expect(code).to.equal(";let deltaPoint;deltaPoint=(delta).asPoint();return (this.x)._add((deltaPoint).x())._dot((this.y)._add((deltaPoint).y()));")
+            const clazz = new ST_Scope(scope)
+            clazz.set("x", ST_Scope.objectVariable)
+            clazz.set("y", ST_Scope.objectVariable)
+
+            let code = compile(node, clazz)
+            expect(code).to.equal(";let deltaPoint;deltaPoint=(delta).asPoint();return (this.__x)._add((deltaPoint).x())._dot((this.__y)._add((deltaPoint).y()));")
 
             const methodDefinition = node
             const messagePattern = methodDefinition.child[0]!
@@ -572,14 +566,17 @@ describe("compile", () => {
             } else {
                 throw Error("yikes")
             }
-            args.push(code);
-            const pointPlus = new Function(...args)
-            const This = new ST_Point(new ST_Number(3), new ST_Number(5))
-            const delta = new ST_Point(new ST_Number(8), new ST_Number(13))
-            // pointPlus(delta)
+            args.push(code)
 
-            let r: ST_Point
-            ;let deltaPoint;deltaPoint=(delta).asPoint();r= (This.__x)._add((deltaPoint).x())._dot((This.__y)._add((deltaPoint).y()));
+            // console.log(code)
+
+            ST_Point.prototype._add = (new Function(...args) as any)
+
+            const obj = new ST_Point(new ST_Number(3), new ST_Number(5))
+
+            const delta = new ST_Point(new ST_Number(8), new ST_Number(13))
+            const r = obj._add(delta)
+ 
             // console.log(r)
             expect(r.x().value).to.equal(11)
             expect(r.y().value).to.equal(18)

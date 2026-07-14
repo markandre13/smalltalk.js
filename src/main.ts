@@ -1,10 +1,11 @@
 import { Canvas } from "./viewkit/Canvas"
-import { evaluate, makeGlobalScope } from "./evaluate"
+import { makeGlobalScope } from "./evaluate"
 import { program, setLexer } from "./parser"
 import { SystemBrowser } from "./viewkit/SystemBrowser"
 import { WindowManager } from "./viewkit/WindowManager"
 import { ST_Transcript } from "./classes/ST_Transcript"
 import { initialize } from "./initialize"
+import { compile } from "./compile"
 
 initialize()
 const scope = makeGlobalScope()
@@ -14,10 +15,9 @@ workspace.textContent = 'Welcome to Smalltalk.JS - personal computing for childr
 
 const canvas = new Canvas()
 
-
-
 const repl = document.createElement("pre")
-repl.innerText = `pen := Pen new.
+repl.innerText = `|pen|
+pen := Pen new.
 1 to: 150 do: [ :i | pen go: 10; turn: (i / 3). ]`
 
 repl.contentEditable = "true"
@@ -30,7 +30,8 @@ repl.onkeydown = (ev: KeyboardEvent) => {
             ST_Transcript.buffer = ""
             setLexer(repl.textContent)
             const node = program()
-            const r = evaluate(node!, scope)
+            const code = compile(node, scope)
+            const r = (Function(code))()
             if (r?.value !== undefined) {
                 const s = document.createElement("span")
                 s.style.color = "#0000ff"

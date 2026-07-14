@@ -98,7 +98,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 return node.text!
             }
             if (a === ST_Scope.objectVariable) {
-                return `this.${node.text}`
+                return `this.__${node.text}`
             }
 
             if (a !== undefined) {
