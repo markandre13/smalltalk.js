@@ -52,8 +52,23 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             for (let i = 0; i < node.child.length - 1; ++i) {
                 r += compile(node.child[i], scope) + ';'
             }
+            const last = node.child[node.child.length - 1]!
+            switch (last.type) {
+                case Type.SYN_EXPRESSION: {
+                    r += compileExpression("return ", last, scope)
+                } break
+                case Type.TKN_RETURN: {
+                    r += r += compile(last, scope)
+                } break
+                case Type.TKN_ASSIGNMENT: {
+                    r += compileExpression(`${last.child[0]!.text}=`, last.child[1]!, scope)
+                        + `;return ${last.child[0]!.text}`
+                } break
+                default:
+                    throw Error(`last statement of type ${Type[last.type]} not implemented yet`)
+            }
             // r += "return " + compile(node.child[node.child.length - 1], scope)
-            r += compile(node.child[node.child.length - 1], scope)
+            // r += compile(node.child[node.child.length - 1], scope)
             return r
             // return compileExpression("return", node, scope)
         }
@@ -186,13 +201,13 @@ function compileExpression(stmt: string, node: Node, scope: ST_Scope): string {
         throw Error(`'${node.child[0]?.text}' is null`)
     }
     if (node.child.length === 1) {
-        return stmt+result
+        return stmt + result
     } else if (node.child.length === 2) {
         // console.log('NO CASCADE')
         for (let n of node.child[1]!.child) {
             result = compileMessage(result, n!, scope)
         }
-        return stmt+result
+        return stmt + result
     } else {
         // see NCITS J20 DRAFT of ANSI Smalltalk Standard rev1.9: 3.4.5.3.3 Cascades
 

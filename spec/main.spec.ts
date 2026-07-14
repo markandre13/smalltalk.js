@@ -373,7 +373,7 @@ describe("parse", () => {
         it("the result of the last statement is returned (1. 2.)", () => {
             setLexer("1. 2.")
             let node = program()
-            node?.printTree()
+            // node?.printTree()
 
             expect(node?.type).toBe(Type.SYN_INITIALIZER_DEFINITION)
             node = node?.child[1]
@@ -671,7 +671,7 @@ describe("parse", () => {
         it("a := #('quick' 8 'fox')", () => {
             setLexer(`a := #('quick' 8 'fox')`)
             const node = program()
-            node?.printTree()
+            // node?.printTree()
             const r = evaluate(node)
             expect(r).toBeInstanceOf(ST_Array)
             expect(r).toEqual([new ST_String('quick'), new ST_Number(8), new ST_String("fox")])
@@ -694,7 +694,7 @@ describe("parse", () => {
         it("unary", () => {
             setLexer(`method`)
             const node = message_pattern()
-            node?.printTree()
+            // node?.printTree()
             expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
             expect(node?.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
             expect(node?.child[0]?.text).toBe("method")
@@ -720,7 +720,7 @@ describe("parse", () => {
         it("keywords", () => {
             setLexer(`with: arg do: stuff`)
             const node = message_pattern()
-            node?.printTree()
+            // node?.printTree()
             expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
             expect(node?.child[0]?.type).toBe(Type.TKN_KEYWORD)
             expect(node?.child[0]?.text).toBe("with:")

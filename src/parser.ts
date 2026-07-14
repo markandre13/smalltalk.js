@@ -25,14 +25,22 @@ function trace(name: string) {
 //                     | <<pool definition>>
 //                     | <<program initializer definition>>
 
-// 3.3.5
-// <<program initializer definition >> ::= <initializer definition>
+/**
+ * 3.3.5
+ * ```
+ * <<program initializer definition >> ::= <initializer definition>
+ * ```
+ */
 export function program(): Node | undefined {
     return initializer_definition()
 }
 
-// 3.4.2
-// <method definition> ::= <message pattern> [<temporaries> ] [<statements>]
+/**
+ * 3.4.2
+ * ```
+ * <method definition> ::= <message pattern> [<temporaries> ] [<statements>]
+ * ```
+ */
 export function method_definition(): Node | undefined {
     const pattern = message_pattern()
     if (pattern === undefined) {
@@ -149,8 +157,10 @@ function temporaries(): Node | undefined {
     return temporaries
 }
 
-// 3.4.3 Initilizer Definition
-// <initializer definition> ::= [<temporaries>] [<statements>]
+/**
+ * 3.4.3 Initilizer Definition
+ * <initializer definition> ::= [<temporaries>] [<statements>]
+ */
 function initializer_definition(): Node | undefined {
     const temp = temporaries()
     const stmt = statements()
@@ -159,10 +169,14 @@ function initializer_definition(): Node | undefined {
     return init
 }
 
-// 3.4.4 Blocks
-// <block constructor> ::= '[' <block body> ']'
-// <block body> ::= [<block argument>* '|'] [<temporaries>] [<statements>]
-// <block argument> ::= ':' identifier
+/**
+ * 3.4.4 Blocks
+ * ```
+ * <block constructor> ::= '[' <block body> ']'
+ * <block body> ::= [<block argument>* '|'] [<temporaries>] [<statements>]
+ * <block argument> ::= ':' identifier
+ * ```
+ */
 function block_constructor(): Node | undefined {
     const left_bracket = lexer.lex()
     if (left_bracket?.type !== Type.TKN_LEFT_SQUARE_BRACKET) {
@@ -232,11 +246,16 @@ function block_argument(): Node | undefined {
  *     (<return statement> ['.'] )
  *   | (<expression> ['.' [<statements>]])
  * ```
+ * returns
+ * ```
+ * TKN_STATEMENTS
+ *   TKN_RETURN expr
+ * ```
  */
 function statements(): Node | undefined {
     trace("statements")
 
-    let stmts: Node | undefined //  = new Node(Type.SYN_STATEMENTS)
+    let stmts: Node | undefined
     while (true) {
         const ret = return_statement()
         if (ret !== undefined) {
@@ -289,8 +308,12 @@ function return_statement(): Node | undefined {
     return returnOperator
 }
 
-// 3.4.5.2 Expressions
-// <expression> ::= <assignment> | <basic expression>
+/**
+ * 3.4.5.2 Expressions
+ * ```
+ * <expression> ::= <assignment> | <basic expression>
+ * ```
+ */
 export function expression(): Node | undefined {
     trace("expression")
     let t0
@@ -306,8 +329,18 @@ export function expression(): Node | undefined {
     return undefined
 }
 
-// <assignment> ::= <assignment target> assignmentOperator <expression>
-// <assignment target> := identifier
+/**
+ * ```
+ * <assignment> ::= <assignment target> assignmentOperator <expression>
+ * <assignment target> := identifier
+ * ```
+ * returns
+ * ```
+ * TKN_ASSIGNMENT
+ *    identifier
+ *    expression
+ * ```
+ */
 function assignment(): Node | undefined {
     const id = identifier()
     if (id === undefined) {
@@ -524,29 +557,36 @@ function binary_selector(): Node | undefined {
     return undefined
 }
 
-// <binary argument> ::= <primary> <unary message>*
+/**
+ * ```
+ * <binary argument> ::= <primary> <unary message>*
+ * ```
+ */
 function binary_argument(): Node | undefined {
     trace("binary_argument")
-    let t0 = primary()
-    if (t0 === undefined) {
+    let p = primary()
+    if (p === undefined) {
         return
     }
-    let msg: Node | undefined
+    let expr: Node | undefined
+    let msgs: Node | undefined
     while (true) {
-        let t1 = unary_message()
-        if (t1 === undefined) {
+        let u = unary_message()
+        if (u === undefined) {
             break
         }
-        if (msg === undefined) {
-            msg = new Node(Type.SYN_MESSAGES) // FIXME.. shouldn't this be a stream of unary messages?
-            msg.append(t0)
+        if (msgs === undefined) {
+            expr = new Node(Type.SYN_EXPRESSION)
+            msgs = new Node(Type.SYN_MESSAGES)
+            expr.append(p)
+            expr.append(msgs)
         }
-        msg.append(t1)
+        msgs.append(u)
     }
-    if (msg) {
-        return msg
+    if (expr) {
+        return expr
     }
-    return t0
+    return p
 }
 
 // <unary message> ::= unarySelector

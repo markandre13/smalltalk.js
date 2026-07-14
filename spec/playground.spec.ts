@@ -1,6 +1,11 @@
 import { it, describe, expect } from "vitest"
-import { expression, program, setLexer } from "../src/parser"
+import { expression, method_definition, program, setLexer } from "../src/parser"
 import { compile } from "../src/compile"
+import { makeGlobalScope } from "../src/evaluate"
+import { ST_Scope } from "../src/classes/ST_Scope"
+import { ST_Number } from "../src/classes/ST_Number"
+import { expectNodeTree } from "./detail/expectNodeTree"
+import { Type } from "../src/type"
 
 
 describe("playground", () => {
@@ -93,13 +98,13 @@ describe("playground", () => {
                 setLexer("1 a. 2 b.")
                 const node = program()
                 const code = compile(node)
-                expect(code).to.equal("(new ST_Number(1)).a();(new ST_Number(2)).b();")
+                expect(code).to.equal("(new ST_Number(1)).a();return (new ST_Number(2)).b();")
             })
             it("a := 1 + 2 + 3", () => {
                 setLexer("a := 1 + 2 + 3")
                 const node = program()
                 const code = compile(node)
-                expect(code).to.equal("a=(new ST_Number(1))._add(new ST_Number(2))._add(new ST_Number(3));")
+                expect(code).to.equal("a=(new ST_Number(1))._add(new ST_Number(2))._add(new ST_Number(3));return a;")
             })
             it("^ 1 + 2 + 3", () => {
                 setLexer("^ 1 + 2 + 3")
@@ -111,7 +116,7 @@ describe("playground", () => {
                 setLexer("a := 1 + 2 ; + 3 ; + 4.")
                 const node = program()
                 const code = compile(node)
-                expect(code).to.equal("{let _tmp=new ST_Number(1);(_tmp)._add(new ST_Number(2));(_tmp)._add(new ST_Number(3));a=(_tmp)._add(new ST_Number(4))};")
+                expect(code).to.equal("{let _tmp=new ST_Number(1);(_tmp)._add(new ST_Number(2));(_tmp)._add(new ST_Number(3));a=(_tmp)._add(new ST_Number(4))};return a;")
             })
             it("return cascaded message: ^ 1 + 2 ; + 3 ; + 4.", () => {
                 setLexer("^ 1 + 2 ; + 3 ; + 4.")
@@ -119,19 +124,38 @@ describe("playground", () => {
                 const code = compile(node)
                 expect(code).to.equal("{let _tmp=new ST_Number(1);(_tmp)._add(new ST_Number(2));(_tmp)._add(new ST_Number(3));return (_tmp)._add(new ST_Number(4))};")
             })
-            // TODO: program          -> last value is to be returned
-            // TODO: block statements -> last value is to be returned
-            // [ 3. 5. 7. ] value.  -> 7
+            it("block statement", () => {
+                setLexer("[3. 5. 7]")
+                const node = program()
+                const code = compile(node)
+                console.log(code)
+                expect(code).to.equal("return ()=>{new ST_Number(3);new ST_Number(5);return new ST_Number(7)};")
+            })
+            // TODO: access object variables
+            //    this would imply objects/classes
         })
     })
-    // describe("method definition", () => {
-    // it.only("return", () => {
-    //     setLexer(`|x y deltaPoint | x + deltaPoint x @ (y + deltaPoint y)`)
-    //     const node = program()
-    //     node?.printTree()
-    //     const code = compile(node)
-    //     console.log(code)
-    // })
+
+    it("1 + ( 2 a )", () => {
+        setLexer(`1 + ( 2 a )`)
+        const node = expression()!
+        const code = compile(node)
+        expect(code).to.equal("(new ST_Number(1))._add((new ST_Number(2)).a())")
+    })
+    it("1 + 2 a", () => {
+        setLexer(`1 + 2 a`)
+        const node = expression()!
+        const code = compile(node)
+        expect(code).to.equal("(new ST_Number(1))._add((new ST_Number(2)).a())")
+    })
+
+    it("|x y deltaPoint| x + deltaPoint x @ (y + deltaPoint y)", () => {
+        setLexer(`|x y deltaPoint| x + deltaPoint x @ (y + deltaPoint y)`)
+        const node = program()!
+        const code = compile(node)
+        expect(code).to.equal("let x,y,deltaPoint;return (x)._add((deltaPoint).x())._dot((y)._add((deltaPoint).y()));")
+    })
+
 
     // it("XXX", () => {
     //     const lexer = setLexer(`| deltaPoint | ^ x + deltaPoint x`)
@@ -189,5 +213,5 @@ describe("playground", () => {
     //     // ;let deltaPoint;deltaPoint=(delta).asPoint();return ((x)._add(deltaPoint)).@((y)._add(deltaPoint));
     //     // ;let deltaPoint;deltaPoint=(delta).asPoint();return ((x)._add(deltaPoint.x)).@((y)._add(deltaPoint.y));
     // })
-    // })
+
 })

@@ -152,6 +152,37 @@ describe("parser", () => {
             })
         })
 
+        describe("binary argument containing unary messages", () => {
+            it("1 + ( 2 a )", () => {
+                setLexer(`1 + ( 2 a )`)
+                const node = expression()!
+                expectNodeTree(node, [
+                    [0, Type.SYN_EXPRESSION],
+                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.SYN_MESSAGES],
+                    [2, Type.TKN_BINARY, '+'],
+                    [3, Type.SYN_EXPRESSION],
+                    [4, Type.TKN_INTEGER, '2'],
+                    [4, Type.SYN_MESSAGES],
+                    [5, Type.SYN_UNARY, 'a'],
+                ])
+            })
+            it("1 + 2 a", () => {
+                setLexer(`1 + 2 a`)
+                const node = expression()!
+                expectNodeTree(node, [
+                    [0, Type.SYN_EXPRESSION],
+                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.SYN_MESSAGES],
+                    [2, Type.TKN_BINARY, '+'],
+                    [3, Type.SYN_EXPRESSION],
+                    [4, Type.TKN_INTEGER, '2'],
+                    [4, Type.SYN_MESSAGES],
+                    [5, Type.SYN_UNARY, 'a'],
+                ])
+            })
+        })
+
         describe("cascaded messages", () => {
             it("2 + 3 ; - 1", () => {
                 setLexer("2 + 3 ; - 1")
@@ -247,7 +278,7 @@ describe("parser", () => {
 
         describe("parentheses", () => {
             it("xxx", () => {
-                
+
             })
         })
     })
