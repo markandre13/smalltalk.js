@@ -7,42 +7,42 @@ const D = 360 / (2.0 * Math.PI)
 export class ST_Number {
     value: number
     constructor(value: number) { this.value = value }
-    toString() { return `${this.value}` }
-    printNl() { ST_Transcript.show_(this.value); ST_Transcript.cr() }
+    _toString() { return `${this.value}` }
+    _printNl() { ST_Transcript._show_(this.value); ST_Transcript._cr() }
     /**
      * Answer the sum of the receiver and aNumber
      */
-    _add(a: ST_Number) { return new ST_Number(this.value + a.value) }
+    $add(a: ST_Number) { return new ST_Number(this.value + a.value) }
     /**
      * Answer the difference between the receiver and aNumber.
      */
-    _sub(a: ST_Number) { return new ST_Number(this.value - a.value) }
+    $sub(a: ST_Number) { return new ST_Number(this.value - a.value) }
     /**
      * Answers the result of multiplying the receiver by aNumber.
      */
-    _mul(a: ST_Number) { return new ST_Number(this.value * a.value) }
+    $mul(a: ST_Number) { return new ST_Number(this.value * a.value) }
     /**
      * Answer the result of dividing receiver by aNumber
      */
-    _div(a: ST_Number) { return new ST_Number(this.value / a.value) }
+    $div(a: ST_Number) { return new ST_Number(this.value / a.value) }
 
-    _dot(a: ST_Number) { return new ST_Point(this, a) }
+    $dot(a: ST_Number) { return new ST_Point(this, a) }
 
     /**
      * Integer quotient defined by division with truncation toward negative
      * infinity. 9//4 = 2, -9//4 = -3, -0.9//0.4 = -3
      */
     // FIXME: ^(self / aNumber) floor
-    _mod(a: ST_Number) { return new ST_Number(this.value % a.value) }
+    $mod(a: ST_Number) { return new ST_Number(this.value % a.value) }
     /**
      * Create an ...
      */
-    to_do_(to: ST_Number, block: Function) {
+    _to_do_(to: ST_Number, block: Function) {
         for (let i = new ST_Number(this.value); i.value <= to.value; ++i.value) {
             (block as any).value_(i)
         }
     }
-    to_by_do_(to: ST_Number, by: ST_Number, block: Function) {
+    _to_by_do_(to: ST_Number, by: ST_Number, block: Function) {
         if (by.value > 0) {
             for (let i = new ST_Number(this.value); i.value <= to.value; i.value += by.value) {
                 (block as any).value_(i)
@@ -57,7 +57,7 @@ export class ST_Number {
     // min
     // rounded
     // negated
-    degreesToRadians() { return new ST_Number(this.value / D) }
-    cos() { return new ST_Number(Math.cos(this.value)) }
-    sin() { return new ST_Number(Math.sin(this.value)) }
+    _degreesToRadians() { return new ST_Number(this.value / D) }
+    _cos() { return new ST_Number(Math.cos(this.value)) }
+    _sin() { return new ST_Number(Math.sin(this.value)) }
 }

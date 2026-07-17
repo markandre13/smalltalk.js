@@ -3,6 +3,7 @@
 export class ST_Scope {
     static readonly localVariable = Symbol("local-variable")
     static readonly objectVariable = Symbol("object-variable")
+    static readonly globalVariable = Symbol("global-variable")
 
     private parent?: ST_Scope
     private map = new Map<string, any>();
@@ -28,7 +29,12 @@ export class ST_Scope {
             return value
         }
         if (this.parent === undefined) {
-            throw Error(`variable ${name} does not exist`)
+            return ST_Scope.globalVariable
+            // if ((window as any).Smalltalk.privateHas(name)) {
+            //     return ST_Scope.globalVariable
+            // }
+            // console.log((window as any).Smalltalk)
+            // throw Error(`variable ${name} does not exist`)
         }
         return this.parent.get(name)
     }

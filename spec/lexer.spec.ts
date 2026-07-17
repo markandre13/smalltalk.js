@@ -1,6 +1,6 @@
-import { expect, it, describe } from "vitest";
-import { Lexer } from "../src/lexer";
-import { Type } from "../src/type";
+import { expect, it, describe } from "vitest"
+import { Lexer } from "../src/lexer"
+import { Type } from "../src/type"
 
 describe("lex", () => {
     describe("identifier", () => {
@@ -40,27 +40,63 @@ describe("lex", () => {
         // not as an keyword followed by an '='.
 
         // :=
+    })
+    describe("3.4.6 literal", () => {
+        describe("3.4.6.1 numeric literals", () => {
+            describe("integer", () => {
+                it("42", () => {
+                    const node = new Lexer("42").lex()
+                    expect(node?.type).toBe(Type.TKN_INTEGER)
+                    expect(node?.text).toBe("42")
+                })
+            })
+            // float
+            // scaledDecimal
+        })
+        // 3.4.6.2 character literals $a
+        describe("3.5.8 quotedString", () => {
+            it("within single ticks", () => {
+                const node = new Lexer("'hello'").lex()
+                expect(node?.type).toBe(Type.TKN_STRING)
+                expect(node?.text).toBe("hello")
+            })
+            it("double ticks inside become a single tick", () => {
+                const node = new Lexer("'hel''lo'").lex()
+                expect(node?.type).toBe(Type.TKN_STRING)
+                expect(node?.text).toBe("hel'lo")
+            })
+        })
+        describe("3.5.9 hashedString", () => {
+            it("within single ticks", () => {
+                const node = new Lexer("#'hello'").lex()
+                expect(node?.type).toBe(Type.TKN_HASHED_STRING)
+                expect(node?.text).toBe("hello")
+            })
+            it("double ticks inside become a single tick", () => {
+                const node = new Lexer("#'hel''lo'").lex()
+                expect(node?.type).toBe(Type.TKN_HASHED_STRING)
+                expect(node?.text).toBe("hel'lo")
+            })
+        })
+        describe("3.5.10 quotedSelector", () => {
+            it("unarySelector", () => {
+                const node = new Lexer("#hello<").lex()
+                expect(node?.type).toBe(Type.TKN_QUOTED_SELECTOR)
+                expect(node?.text).toBe("hello")
+            })
+            it("binarySelector", () => {
+                const node = new Lexer("#<=a").lex()
+                expect(node?.type).toBe(Type.TKN_QUOTED_SELECTOR)
+                expect(node?.text).toBe("<=")
+            })
+            it("keywordSelector", () => {
+                const node = new Lexer("#a:b:uvw+").lex()
+                expect(node?.type).toBe(Type.TKN_QUOTED_SELECTOR)
+                expect(node?.text).toBe("a:b:")
+            })
+        })
+    })
 
-    })
-    describe("string", () => {
-        it("within single ticks", () => {
-            const node = new Lexer("'hello'").lex()
-            expect(node?.type).toBe(Type.TKN_STRING)
-            expect(node?.text).toBe("hello")
-        })
-        it("double ticks inside become a single tick", () => {
-            const node = new Lexer("'hel''lo'").lex()
-            expect(node?.type).toBe(Type.TKN_STRING)
-            expect(node?.text).toBe("hel'lo")
-        })
-    })
-    describe("integer", () => {
-        it("42", () => {
-            const node = new Lexer("42").lex()
-            expect(node?.type).toBe(Type.TKN_INTEGER)
-            expect(node?.text).toBe("42")
-        })
-    })
     describe("binary", () => {
         it("+", () => {
             const node = new Lexer("+").lex()
@@ -90,6 +126,14 @@ describe("lex", () => {
         })
     })
     describe("assignment (←)", () => {
+        it("_ (Pre-ANSI)", () => {
+            const node = new Lexer("←").lex()
+            expect(node?.type).toBe(Type.TKN_ASSIGNMENT)
+        })
+        it("← (Pre-ANSI symbol in UTF-8)", () => {
+            const node = new Lexer("←").lex()
+            expect(node?.type).toBe(Type.TKN_ASSIGNMENT)
+        })
         it(":= (ANSI)", () => {
             const node = new Lexer(":=").lex()
             expect(node?.type).toBe(Type.TKN_ASSIGNMENT)

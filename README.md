@@ -2,14 +2,14 @@
 
 ![smalltalk.js web app](img/screenshot.png)
 
-A simple Smalltalk interpreter written in TypeScript.
+A simple Smalltalk environment written in TypeScript.
 
 STATUS: Proof of Concept
 
 ## How to run
 
     git clone https://github.com/markandre13/smalltalk.js.git
-    cd smalltalkjs
+    cd smalltalk.js
     npm install
     npm start
 
@@ -22,7 +22,7 @@ STATUS: Proof of Concept
 
 - [ ] window manager
   - [X] move
-  - [ ] resize
+  - [X] resize
   - [ ] minimize
   - [ ] close
 - [ ] Transcript, Workspace

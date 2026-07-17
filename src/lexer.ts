@@ -28,6 +28,10 @@ export class Lexer {
         return Lexer.isAlpha(c) || Lexer.isDigit(c)
     }
 
+    static isBinaryCharacter(c: string): boolean {
+        return '!%&*+,/<=>?@\\~|-'.includes(c)
+    }
+
     constructor(data: string) {
         this.data = data
         this.line = 1
@@ -42,10 +46,10 @@ export class Lexer {
     }
     unparsed(): string {
         let t = ''
-        for(let i=this.tokenStack.length-1; i>=0; --i) {
+        for (let i = this.tokenStack.length - 1; i >= 0; --i) {
             t += this.tokenStack[i]?.toString()
         }
-        t+=this.data.substring(this.pos)
+        t += this.data.substring(this.pos)
         return t
     }
 
@@ -110,28 +114,12 @@ export class Lexer {
                         case '\t':
                         case '\v':
                             break
+                        case '_':
                         case '←':
                             return new Node(Type.TKN_ASSIGNMENT)
                         case '↑':
                         case '^':
                             return new Node(Type.TKN_RETURN)
-                        case '!':
-                        case '%':
-                        case '&':
-                        case '*':
-                        case '+':
-                        case ',':
-                        case '/':
-                        case '<':
-                        case '=':
-                        case '>':
-                        case '?':
-                        case '@':
-                        case '\\':
-                        case '~':
-                        case '|':
-                        case '-':
-                            return new Node(Type.TKN_BINARY, c)
                         case ';':
                             return new Node(Type.TKN_SEMICOLON, c)
                         case '.':
@@ -155,7 +143,7 @@ export class Lexer {
                             this.state = 6
                             continue
                         case '#':
-                            this.state = 7
+                            this.state = 8
                             continue
                         default:
                             if (Lexer.isAlpha(c)) {
@@ -166,6 +154,11 @@ export class Lexer {
                             if (Lexer.isDigit(c)) {
                                 this.text = ""
                                 this.state = 4
+                                break
+                            }
+                            if (Lexer.isBinaryCharacter(c)) {
+                                this.text = ""
+                                this.state = 7
                                 break
                             }
                             throw Error(`Unknown character '${c}'`)
@@ -225,12 +218,81 @@ export class Lexer {
                     }
                     this.ungetc()
                     return new Node(Type.TKN_COLON)
-                case 7: // #...
+                case 7: // <binary character>
+                    if (!Lexer.isBinaryCharacter(c)) {
+                        this.ungetc()
+                        this.state = 0
+                        return new Node(Type.TKN_BINARY, this.text)
+                    }
+                    break
+                case 8: // #...
                     this.state = 0
                     if (c === '(') {
-                        return new Node(Type.TKN_ARRAY_LITERAL)
+                        return new Node(Type.TKN_ARRAY_LITERAL) // this is a hack?
+                    }
+                    if (c === '\'') {
+                        this.text = ''
+                        this.state = 13
+                        continue
+                    }
+                    if (Lexer.isAlpha(c)) {
+                        this.text = ''
+                        this.state = 9
+                        break
+                    }
+                    if (Lexer.isBinaryCharacter(c)) {
+                        this.text = ''
+                        this.state = 12
+                        break
                     }
                     throw Error(`Unknown character '${c}'`)
+                case 9: // #<alpha>...
+                    if (c == ":") {
+                        this.state = 10
+                        break
+                    }
+                    if (Lexer.isAlphaNumeric(c)) {
+                        break
+                    }
+                    this.ungetc()
+                    this.state = 0
+                    const lastColon = this.text!.lastIndexOf(":")
+                    if (lastColon !== -1) {
+                        for (let i = lastColon; i < this.text!.length; ++i) {
+                            this.ungetc()
+                        }
+                        this.text = this.text!.substring(0, lastColon + 1)
+                    }
+                    return new Node(Type.TKN_QUOTED_SELECTOR, this.text)
+                case 10:
+                    if (Lexer.isAlphaNumeric(c)) {
+                        this.state = 9
+                        break
+                    }
+                    this.ungetc()
+                    this.state = 0
+                    return new Node(Type.TKN_QUOTED_SELECTOR, this.text)
+                case 12: // #<binaryCharacter>...
+                    if (Lexer.isBinaryCharacter(c)) {
+                        break
+                    }
+                    this.ungetc()
+                    this.state = 0
+                    return new Node(Type.TKN_QUOTED_SELECTOR, this.text)
+                case 13: // #'...
+                    if (c === '\'') {
+                        this.state = 14
+                        continue
+                    }
+                    break
+                case 14: // #'...'
+                    if (c === '\'') {
+                        this.state = 13
+                        break
+                    }
+                    this.ungetc()
+                    this.state = 0
+                    return new Node(Type.TKN_HASHED_STRING, this.text)
             }
             if (eof) {
                 if (this.state !== 0) {

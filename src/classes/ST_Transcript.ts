@@ -1,9 +1,9 @@
 export class ST_Transcript {
     static buffer = ''
-    static show_(value: any) {
+    static _show_(value: any) {
         ST_Transcript.buffer += value.toString()
     }
-    static cr() {
+    static _cr() {
         ST_Transcript.buffer += "\n"
     }
 }

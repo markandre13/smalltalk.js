@@ -22,23 +22,23 @@ new
     ^ quill
 */
 export class ST_Point {
-    __x: ST_Number
-    __y: ST_Number
+    x: ST_Number
+    y: ST_Number
     constructor(x: ST_Number, y: ST_Number) {
-        this.__x = x
-        this.__y = y
+        this.x = x
+        this.y = y
     }
     /**
      * Answers a new Point that is the product of the receiver and scale (which is a
      * Point or Number)
      */
-    _mul(a: ST_Number) { return new ST_Point(this.__x._mul(a), this.__y._mul(a)) }
+    $mul(a: ST_Number) { return new ST_Point(this.x.$mul(a), this.y.$mul(a)) }
     /**
      * Answers a new Point that is the sum of the receiver and delta (which is a Point
      * or Number)
      */
-    _add(delta: ST_Point) { return new ST_Point(this.__x._add(delta.__x), this.__y._add(delta.__y)) }
-    asPoint() { return this }
-    x() { return this.__x }
-    y() { return this.__y }
+    $add(delta: ST_Point) { return new ST_Point(this.x.$add(delta.x), this.y.$add(delta.y)) }
+    _asPoint() { return this }
+    _x() { return this._x }
+    _y() { return this._y }
 }

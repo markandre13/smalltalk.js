@@ -18,7 +18,7 @@ export class Node {
     }
 
     toString(): string {
-        if (this.text)
+        if (this.text !== undefined)
             return `${Type[this.type]} '${this.text}'`
         return Type[this.type]
     }

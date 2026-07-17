@@ -8,7 +8,7 @@
 //
 // at the moment this is intended to provide a yet to be implemented
 // system browser with data and later to test the parser
-
+//
 // <string>!
 // <superclass> subclass: #<class>...!
 // <class> comment: <string>!
@@ -17,7 +17,7 @@
 //   <body>!
 // <aga
 // ! !
-
+//
 // 0x0c formfeed (FF)
 // 0x0d cr
 // 0x09 horizontal tab
@@ -26,6 +26,8 @@
 //   !ActionMenu methodsFor: 'action symbols'!
 // and
 //   ! ! <-- empty chunk marks the end
+//
+// see also: ANSI Smalltalk: 4. Smalltalk Interchange Format
 
 const EXCLAMATION_MARK = 0x21
 

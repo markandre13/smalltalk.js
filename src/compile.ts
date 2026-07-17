@@ -98,7 +98,15 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 return node.text!
             }
             if (a === ST_Scope.objectVariable) {
-                return `this.__${node.text}`
+                return `this._${node.text}`
+            }
+            if (a === ST_Scope.globalVariable) {
+                if (typeof window !== "undefined") {
+                    return `window.st.${node.text}`
+
+                } else {
+                    return `global.st.${node.text}`
+                }
             }
 
             if (a !== undefined) {
@@ -108,9 +116,11 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             throw Error(`undeclared identifier ${node.text?.replaceAll('_', ':')}`)
         }
         case Type.TKN_STRING:
-            return `new ST_String('${node.text}')` // FIXME: need to esacpe node.text
+            return `new st.String('${node.text}')` // FIXME: need to escape node.text
+        case Type.TKN_QUOTED_SELECTOR:
+            return `new st.String('${node.text}')` // FIXME: this should be unique object...
         case Type.TKN_INTEGER:
-            return `new ST_Number(${node.text})`
+            return `new st.Number(${node.text})`
         case Type.SYN_BLOCK_CLOSURE: {
             let _scope = new ST_Scope(scope)
             let _args: Node | undefined = undefined
@@ -169,7 +179,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             for (const e of node.child) {
                 array.push(compile(e, scope))
             }
-            return `new ST_Array(${array.join(',')})`
+            return `new st.Array(${array.join(',')})`
         }
     }
     throw Error(`compile(${node.toString()}): not implemented`)
@@ -214,14 +224,6 @@ function compileExpression(stmt: string, node: Node, scope: ST_Scope): string {
         return stmt + result
     } else {
         // see NCITS J20 DRAFT of ANSI Smalltalk Standard rev1.9: 3.4.5.3.3 Cascades
-
-        // assignment
-        // let a;{let _tmp=1;_tmp+2;a=_tmp+3}
-        // return ...
-        // {let _tmp=1;_tmp+2;return _tmp+3}
-        // statement
-        // {let _tmp=1;_tmp+2;_tmp+3}
-
         for (let n of node.child[1]!.child) {
             result = compileMessage(result, n!, scope)
         }

@@ -14,16 +14,50 @@ function trace(name: string) {
 }
 
 // Grammer is based on
-// NCITS J20 DRAFT of ANSI Smalltalk Standard; December, 1996; revision 1.9
+// NCITS J20 DRAFT of ANSI Smalltalk Standard; December, 1997; revision 1.9
+// but as for reading the whole program, the ST-80 sources I have are a bit
+// different in regard on how the whole pogram is read.
 
 // hand-coded recursive-descent parser for Smalltalk (which is LL(1))
 
-// 3.3.1
-// <<Smalltalk program>> ::= <<program element>>+ <<initialization ordering>> 
-// <<program element>> ::= <<class definition>>
-//                     | <<global definition>>
-//                     | <<pool definition>>
-//                     | <<program initializer definition>>
+/**
+ * 3.3.1
+ * ```
+ * <<Smalltalk program>> ::= <<program element>>+ <<initialization ordering>> 
+ * <<program element>> ::= <<class definition>>
+ *                     | <<global definition>>
+ *                     | <<pool definition>>
+ *                     | <<program initializer definition>>
+ * ```
+ */
+function smalltalk_program() { }
+
+/**
+ * 3.3.2 Class Definition
+ * ```
+ * <<class definition>>::=
+ *     <<class name>> [<<superclass name>>]
+ *         [<<instance state>>]
+ *         [<<class instance variable names>>]
+ *         [<<class variable names>>]
+ *         [<<imported pool names>>]
+ *         [<<instance methods>>]
+ *         [<<class methods>>]
+ *         [<<class initializer>>]
+ * 
+ *   <<class name>>                   ::= identifier
+ *   <<superclass name>>              ::= identifier
+ *   <<instance state>>               := <<byte indexable>> |
+ *                                       [<<object indexable>>] <<instance variables names>>
+ *   <<instance variables names>>      ::= identifier*
+ *   <<class instance variable names>> ::= identifier*
+ *   <<class variable names>>          ::= identifier*
+ *   <<imported pool names>>           ::= identifier*
+ *   <<instance methods>>              ::= <method definition>*
+ *   <<class methods>>                 ::= <method definition>*
+ *   <<class initializer>>             ::= <initializer definition>
+ * ```
+ */
 
 /**
  * 3.3.5
@@ -686,14 +720,18 @@ function keyword(): Node | undefined {
     return undefined
 }
 
-// 3.4.6 Literals
-// <literal> ::=
-//     <number literal>
-//   | <string literal>
-//   | <character literal>
-//   | <symbol literal>
-//   | <selector literal>
-//   | <array literal>
+/**
+ * 3.4.6 Literals
+ * ``` 
+ * <literal> ::=
+ *      <number literal>
+ *   | <string literal>
+ *   | <character literal>
+ *   | <symbol literal>
+ *   | <selector literal>
+ *   | <array literal>
+ * ```
+ */
 function literal(): Node | undefined {
     trace("literal")
     let t0
@@ -706,8 +744,14 @@ function literal(): Node | undefined {
         return t0
     }
     // character_literal
-    // symbol_literal
-    // selector_literal
+    t0 = symbol_literal()
+    if (t0 !== undefined) {
+        return t0
+    }
+    t0 = selector_literal()
+    if (t0 !== undefined) {
+        return t0
+    }
     t0 = array_literal()
     if (t0 !== undefined) {
         return t0
@@ -761,8 +805,28 @@ function string_literal() {
     return undefined
 }
 
-// 3.4.6.4 Symbol Literals
-// 3.4.6.5 Selector Literals
+/**
+ * 3.4.6.4 Symbol Literals
+ */
+function symbol_literal() {
+    let t0 = lexer.lex()
+    if (t0?.type !== Type.TKN_HASHED_STRING) {
+        lexer.unlex(t0)
+        return undefined
+    }
+    return t0
+}
+/**
+ * 3.4.6.5 Selector Literals
+ */
+function selector_literal() {
+    let t0 = lexer.lex()
+    if (t0?.type !== Type.TKN_QUOTED_SELECTOR) {
+        lexer.unlex(t0)
+        return undefined
+    }
+    return t0
+}
 // 3.4.6.6 Array Literals
 
 function array_literal() {

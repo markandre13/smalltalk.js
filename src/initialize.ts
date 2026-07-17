@@ -4,27 +4,33 @@ import { ST_Pen } from "./classes/ST_Pen"
 import { ST_Point } from "./classes/ST_Point"
 import { ST_String } from "./classes/ST_String"
 import { ST_Transcript } from "./classes/ST_Transcript"
+import { SystemDictionary } from "./classes/SystemDictionary"
 
 /**
  * setup the global environment to execute smalltalk
  */
 export function initialize() {
-    let g
-    if (typeof window !== "undefined") {
-        console.log("Client-side code")
-        g = window as any
 
-    } else {
-        // console.log("Server-side code")
-        g = global as any
-    }
+    const dict = new SystemDictionary()
+    dict._at_put_("Smalltalk", dict)
+    dict._at_put_("Array", ST_Array)
+    dict._at_put_("Number", ST_Number)
+    dict._at_put_("Pen", ST_Pen)
+    dict._at_put_("Point", ST_Point)
+    dict._at_put_("String", ST_String)
+    dict._at_put_("Transcript", ST_Transcript)
 
-    g.ST_Array = ST_Array
-    g.ST_Number = ST_Number
-    g.ST_Pen = ST_Pen
-    g.ST_Point = ST_Point
-    g.ST_String = ST_String
-    g.ST_Transcript = ST_Transcript
+    // st.nil = {
+    //     "subclass_instanceVariableNames_classVariableNames_poolDictionaries_category_": (
+    //         subclass: string,
+    //         instanceVariableNames: string,
+    //         classVariableNames: string,
+    //         poolDictionaries: string,
+    //         category: string
+    //     ) => {
+    //         console.log(`nil subclass: #${subclass} instanceVariableNames: '${instanceVariableNames}' ...`)
+    //     }
+    // }
 
     const f = Function.prototype as any
     const h = new Function('...args', 'return this.apply(this, args)')
