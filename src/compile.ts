@@ -98,15 +98,10 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 return node.text!
             }
             if (a === ST_Scope.objectVariable) {
-                return `this._${node.text}`
+                return `this.${node.text}`
             }
             if (a === ST_Scope.globalVariable) {
-                if (typeof window !== "undefined") {
-                    return `window.st.${node.text}`
-
-                } else {
-                    return `global.st.${node.text}`
-                }
+                return `st.${node.text}`
             }
 
             if (a !== undefined) {
@@ -171,7 +166,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 r += "}"
             }
             // console.log(`RESULT: ${r}`)
-            return r
+            return '(' + r + ')'
         }
         case Type.TKN_ARRAY_LITERAL: {
             // node.child.map(it => evaluate(it, scope))

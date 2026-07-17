@@ -39,6 +39,6 @@ export class ST_Point {
      */
     $add(delta: ST_Point) { return new ST_Point(this.x.$add(delta.x), this.y.$add(delta.y)) }
     _asPoint() { return this }
-    _x() { return this._x }
-    _y() { return this._y }
+    _x() { return this.x }
+    _y() { return this.y }
 }

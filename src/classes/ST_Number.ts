@@ -7,7 +7,7 @@ const D = 360 / (2.0 * Math.PI)
 export class ST_Number {
     value: number
     constructor(value: number) { this.value = value }
-    _toString() { return `${this.value}` }
+    toString() { return `${this.value}` }
     _printNl() { ST_Transcript._show_(this.value); ST_Transcript._cr() }
     /**
      * Answer the sum of the receiver and aNumber
@@ -39,17 +39,17 @@ export class ST_Number {
      */
     _to_do_(to: ST_Number, block: Function) {
         for (let i = new ST_Number(this.value); i.value <= to.value; ++i.value) {
-            (block as any).value_(i)
+            (block as any)._value_(i)
         }
     }
     _to_by_do_(to: ST_Number, by: ST_Number, block: Function) {
         if (by.value > 0) {
             for (let i = new ST_Number(this.value); i.value <= to.value; i.value += by.value) {
-                (block as any).value_(i)
+                (block as any)._value_(i)
             }
         } else {
             for (let i = new ST_Number(this.value); i.value >= to.value; i.value += by.value) {
-                (block as any).value_(i)
+                (block as any)._value_(i)
             }
         }
     }

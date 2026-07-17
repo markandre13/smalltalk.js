@@ -34,13 +34,13 @@ export function initialize() {
 
     const f = Function.prototype as any
     const h = new Function('...args', 'return this.apply(this, args)')
-    f.value = h
-    f.value_ = h
-    f.value_value_ = h
-    f.value_value_value_ = h
-    f.value_value_value_value_ = h
-    f.value_value_value_value_value_ = h
-    f.value_value_value_value_value_value_ = h
-    f.value_value_value_value_value_value_value_ = h
-    f.value_value_value_value_value_value_value_value_ = h
+    f._value = h
+    f._value_ = h
+    f._value_value_ = h
+    f._value_value_value_ = h
+    f._value_value_value_value_ = h
+    f._value_value_value_value_value_ = h
+    f._value_value_value_value_value_value_ = h
+    f._value_value_value_value_value_value_value_ = h
+    f._value_value_value_value_value_value_value_value_ = h
 }
