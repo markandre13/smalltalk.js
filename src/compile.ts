@@ -60,10 +60,21 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 case Type.TKN_RETURN:
                     r += compile(last, scope)
                     break
-                case Type.TKN_ASSIGNMENT:
-                    r += compileExpression(`${last.child[0]!.text}=`, last.child[1]!, scope)
-                        + `;return ${last.child[0]!.text}`
-                    break
+                case Type.TKN_ASSIGNMENT: {
+                    let lh: string
+                    switch (scope.get(last.child[0]!.text!)) {
+                        case ST_Scope.globalVariable:
+                            lh = `st.${last.child[0]!.text}`
+                            break
+                        case ST_Scope.objectVariable:
+                            lh = `this.${last.child[0]!.text}`
+                            break
+                        default:
+                            lh = last.child[0]!.text!
+                    }
+                    r += compileExpression(lh + '=', last.child[1]!, scope)
+                        + `;return ${lh}`
+                } break
                 default:
                     throw Error(`last statement of type ${Type[last.type]} not implemented yet`)
             }
@@ -83,7 +94,18 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             return compileExpression(`return `, node.child[0]!, scope)
         }
         case Type.TKN_ASSIGNMENT: {
-            return compileExpression(`${node.child[0]!.text}=`, node.child[1]!, scope)
+            let lh: string
+            switch (scope.get(node.child[0]!.text!)) {
+                case ST_Scope.globalVariable:
+                    lh = `st.${node.child[0]!.text}`
+                    break
+                case ST_Scope.objectVariable:
+                    lh = `this.${node.child[0]!.text}`
+                    break
+                default:
+                    lh = node.child[0]!.text!
+            }
+            return compileExpression(lh + '=', node.child[1]!, scope)
         }
         case Type.TKN_IDENTIFIER: {
             const a = scope.get(node.text!)

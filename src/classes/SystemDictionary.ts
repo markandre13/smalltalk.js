@@ -1,4 +1,4 @@
-import type { ST_String } from "../src/classes/ST_String"
+import type { ST_String } from "./ST_String"
 
 /**
  * Manages Smalltalk's global variables.
@@ -9,7 +9,7 @@ import type { ST_String } from "../src/classes/ST_String"
 export class SystemDictionary {
     static global: any
     constructor() {
-        const g = (typeof window !== "undefined" ? window : global) as any
+        const g = globalThis as any
         g.st = {}
         SystemDictionary.global = g.st
     }

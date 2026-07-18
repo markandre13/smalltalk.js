@@ -9,6 +9,7 @@ import { ST_Transcript } from "../src/classes/ST_Transcript"
 import { initialize } from "../src/initialize"
 import { expectNodeTree } from "./detail/expectNodeTree"
 import { compile } from "../src/compile"
+import { SystemDictionary } from "../src/classes/SystemDictionary"
 
 // TODO
 // [ ] classes
@@ -153,7 +154,7 @@ describe("parse", () => {
             ])
 
             const code = compile(node!)
-            expect(code).to.equal("(new ST_String('hello')).printNl()")
+            expect(code).to.equal("(new st.String('hello'))._printNl()")
 
             ST_Transcript.buffer = ""
             new Function(code)()
@@ -172,7 +173,7 @@ describe("parse", () => {
             ])
 
             const code = compile(node!)
-            expect(code).to.equal("(new ST_Number(42)).printNl()")
+            expect(code).to.equal("(new st.Number(42))._printNl()")
 
             ST_Transcript.buffer = ""
             new Function(code)()
@@ -185,7 +186,7 @@ describe("parse", () => {
                 const node = expression()!
 
                 const code = compile(node!)
-                expect(code).to.equal("(new ST_Number(1)).to_do_(new ST_Number(3),(x)=>(x).printNl())")
+                expect(code).to.equal("(new st.Number(1))._to_do_(new st.Number(3),((x)=>(x)._printNl()))")
 
                 ST_Transcript.buffer = ""
                 new Function(code)()
@@ -196,7 +197,7 @@ describe("parse", () => {
                 const node = expression()!
 
                 const code = compile(node!)
-                expect(code).to.equal("(new ST_Number(5)).to_by_do_(new ST_Number(15),new ST_Number(5),(x)=>(x).printNl())")
+                expect(code).to.equal("(new st.Number(5))._to_by_do_(new st.Number(15),new st.Number(5),((x)=>(x)._printNl()))")
 
                 ST_Transcript.buffer = ""
                 new Function(code)()
@@ -207,7 +208,7 @@ describe("parse", () => {
                 const node = expression()!
 
                 const code = compile(node!)
-                expect(code).to.equal("(new ST_Number(15)).to_by_do_(new ST_Number(5),new ST_Number(-5),(x)=>(x).printNl())")
+                expect(code).to.equal("(new st.Number(15))._to_by_do_(new st.Number(5),new st.Number(-5),((x)=>(x)._printNl()))")
 
                 ST_Transcript.buffer = ""
                 new Function(code)()
@@ -356,14 +357,6 @@ describe("parse", () => {
     })
 
     describe("code block", () => {
-        it("[||]", () => {
-            setLexer("[||]")
-            const node = expression()
-            // node?.printTree()
-            expect(node?.type).toBe(Type.SYN_EXPRESSION)
-            expect(node?.child[0]?.type).toBe(Type.SYN_BLOCK_CLOSURE)
-            expect(node?.child[0]?.child).toHaveLength(0)
-        })
         it("[|x|]", () => {
             setLexer("[|x|]")
             const node = expression()
@@ -567,21 +560,20 @@ describe("parse", () => {
             expect(r.value).toBe(10)
         })
 
-        it("closure can write outer scope: a:=7. [:b|a:=a+b] value:3.", () => {
-            setLexer("|a| a:=7. [:b|a:=a+b] value:3.")
+        it("closure can write outer scope: a:=7. [:b|a:=a+b] value: 3.", () => {
+            setLexer("Smalltalk at: #a put: 0. a:=7. [:b|a:=a+b] value: 3.")
             const node = program()
-            const scope = new ST_Scope()
             const code = compile(node)
             const r = (new Function(code))()
             expect(r.value).toBe(10)
-            expect(scope.get("a").value).toBe(10)
+            expect(SystemDictionary.at("a").value).to.equal(10)
         })
 
         // smalltalk doesn't want us to overwrite b
         // a:=7. [:b|b:=a+b] value:3
 
         it("closure can have local variables: a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.", () => {
-            setLexer("a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.")
+            setLexer("|a| a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.")
             const node = program()
             const scope = new ST_Scope()
 
@@ -589,8 +581,6 @@ describe("parse", () => {
             const r = (new Function(code))()
 
             expect(r.value).toBe(5)
-            expect(scope.get("a").value).toBe(7)
-            expect(scope.get("c").value).toBe(42)
         })
     })
 

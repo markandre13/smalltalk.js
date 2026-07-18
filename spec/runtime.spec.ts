@@ -97,12 +97,17 @@ function evaluate(source: string) {
     const scope = makeGlobalScope()
     setLexer(source)
     const node = program()
+    // node?.printTree()
     const code = compile(node!, scope)
     // console.log(code)
     try {
-        new Function(code)()
+        return (new Function(code))()
     } catch (e) {
-        console.error(code)
+        // console.error(code)
+        // console.log(globalThis.st.foo)
+        if (e instanceof TypeError) {
+            // console.log(e.stack)
+        }
         throw e
     }
 }
@@ -115,12 +120,30 @@ describe("runtime", () => {
             `)
             expect(SystemDictionary.at("foo").value).to.equal("hello")
         })
+        it("write global variable", () => {
+            const r = evaluate(`
+                Smalltalk at: #foo put: 'hello'.
+                foo := 'world'.
+            `)
+            expect(r.value).to.equal("world")
+            expect(SystemDictionary.at("foo").value).to.equal("world")
+        })
         it("read global variable", () => {
-            evaluate(`
+            const r = evaluate(`
                 Smalltalk at: #foo put: 'hello'.
                 Smalltalk at: #bar put: foo.
+                foo.
             `)
+            expect(r.value).to.equal("hello")
             expect(SystemDictionary.at("bar").value).to.equal("hello")
+        })
+        it("return global variable", () => {
+            const r = evaluate(`
+                Smalltalk at: #foo put: 'hello'.
+                ^foo.
+            `)
+            expect(r.value).to.equal("hello")
+            // expect(SystemDictionary.at("bar").value).to.equal("hello")
         })
     })
     describe("create class", () => {

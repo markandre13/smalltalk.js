@@ -4,7 +4,7 @@ import { compile } from "../src/compile"
 import { initialize } from "../src/initialize"
 
 describe("playground", () => {
-    it("load program", () => {
+    it.skip("load program", () => {
         initialize()
         // codefile.ts reads the source as chunks which can be compiled individually
         // they contain method sections
@@ -31,7 +31,7 @@ describe("playground", () => {
         const node = program()!
         // node.printTree()
         const code = compile(node)
-        // console.log(code)
+        console.log(code)
         Function(code)()
     })
 

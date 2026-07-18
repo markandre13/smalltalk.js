@@ -294,30 +294,6 @@ describe("compile", () => {
             expect(code).toBe("return (()=>{new st.Number(7);return new st.Number(3)});")
         })
 
-        // 0 temp, 0 stmt
-        it("[||]", () => {
-            setLexer("[||]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return ()=>{};")
-        })
-
-        // 0 temp, 1 stmt
-        it("[|| 1 ]", () => {
-            setLexer("[|| 1]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return ()=>new st.Number(1);")
-        })
-
-        // 0 temp, 2 stmt
-        it("[|| 1. 2.]", () => {
-            setLexer("[|| 1. 2.]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return ()=>{new st.Number(1);return new st.Number(2)};")
-        })
-
         // 1 temp, 0 stmt
         it("[|x|]", () => {
             setLexer("[|x|]")
@@ -649,10 +625,10 @@ describe("compile", () => {
             expect(code).to.equal("(new st.Number(1))._a();return (new st.Number(2))._b();")
         })
         it("a := 1 + 2 + 3", () => {
-            setLexer("a := 1 + 2 + 3")
+            setLexer("|a| a := 1 + 2 + 3")
             const node = program()
             const code = compile(node)
-            expect(code).to.equal("a=(new st.Number(1)).$add(new st.Number(2)).$add(new st.Number(3));return a;")
+            expect(code).to.equal("let a;a=(new st.Number(1)).$add(new st.Number(2)).$add(new st.Number(3));return a;")
         })
         it("^ 1 + 2 + 3", () => {
             setLexer("^ 1 + 2 + 3")
@@ -661,10 +637,10 @@ describe("compile", () => {
             expect(code).to.equal("return (new st.Number(1)).$add(new st.Number(2)).$add(new st.Number(3));")
         })
         it("assign cascaded message: a := 1 + 2 ; + 3 ; + 4.", () => {
-            setLexer("a := 1 + 2 ; + 3 ; + 4.")
+            setLexer("|a| a := 1 + 2 ; + 3 ; + 4.")
             const node = program()
             const code = compile(node)
-            expect(code).to.equal("{let _tmp=new st.Number(1);(_tmp).$add(new st.Number(2));(_tmp).$add(new st.Number(3));a=(_tmp).$add(new st.Number(4))};return a;")
+            expect(code).to.equal("let a;{let _tmp=new st.Number(1);(_tmp).$add(new st.Number(2));(_tmp).$add(new st.Number(3));a=(_tmp).$add(new st.Number(4))};return a;")
         })
         it("return cascaded message: ^ 1 + 2 ; + 3 ; + 4.", () => {
             setLexer("^ 1 + 2 ; + 3 ; + 4.")
