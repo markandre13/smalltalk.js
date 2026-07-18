@@ -1,9 +1,9 @@
 import { expect, it, describe } from "vitest"
-import { Type } from "../src/type"
-import { expression, message_pattern, program, setLexer } from "../src/parser"
+import { Type } from "../src/compiler/type"
+import { expression, message_pattern, program, setLexer } from "../src/compiler/parser"
 import { ST_Array } from "../src/classes/ST_Array"
-import { ST_Number } from "../src/classes/ST_Number"
-import { ST_Scope } from "../src/classes/ST_Scope"
+import { ST_Number } from "../src/classes/numeric/ST_Number"
+import { Scope } from "../src/compiler/scope"
 import { ST_String } from "../src/classes/ST_String"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
 import { initialize } from "../src/initialize"
@@ -331,7 +331,7 @@ describe("parse", () => {
         it.skip("all statements are evaluated (a:='hello'. b:='world'.)", () => {
             setLexer("a:='hello'. b:='world'.")
             const node = program()
-            const scope = new ST_Scope()
+            const scope = new Scope()
             const r = (Function(compile(node, scope)))()
             expect(r.value).toBe('world')
             expect(scope.get("a").value).toBe("hello")
@@ -344,7 +344,7 @@ describe("parse", () => {
             setLexer("a := 7")
             const node = expression()
 
-            const scope = new ST_Scope();
+            const scope = new Scope();
             (Function(compile(node, scope)))()
             expect(scope.get("a").value).toBe(7)
         })
@@ -575,7 +575,7 @@ describe("parse", () => {
         it("closure can have local variables: a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.", () => {
             setLexer("|a| a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.")
             const node = program()
-            const scope = new ST_Scope()
+            const scope = new Scope()
 
             const code = compile(node, scope)
             const r = (new Function(code))()

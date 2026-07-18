@@ -1,6 +1,5 @@
-// import { ST_Closure } from "./ST_Closure"
-import { ST_Point } from "./ST_Point"
-import { ST_Transcript } from "./ST_Transcript"
+import { ST_Point } from "../graphics/ST_Point"
+import { ST_Transcript } from "../ST_Transcript"
 
 const D = 360 / (2.0 * Math.PI)
 

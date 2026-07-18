@@ -1,6 +1,6 @@
 import { it, describe } from "vitest"
-import { expression, setLexer } from "../src/parser"
-import { Type } from "../src/type"
+import { expression, setLexer } from "../src/compiler/parser"
+import { Type } from "../src/compiler/type"
 import { expectNodeTree } from "./detail/expectNodeTree"
 
 describe("parser", () => {

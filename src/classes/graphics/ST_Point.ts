@@ -1,4 +1,4 @@
-import type { ST_Number } from "./ST_Number"
+import type { ST_Number } from "../numeric/ST_Number"
 
 /*
 BitBlt subclass: #Pen

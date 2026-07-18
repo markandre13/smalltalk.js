@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { program, setLexer } from "../src/parser"
-import { compile } from "../src/compile"
-import { ST_Scope } from "../src/classes/ST_Scope"
+import { program, setLexer } from "../src/compiler/parser"
+import { Scope } from "../src/compiler/scope"
 import { ST_String } from "../src/classes/ST_String"
 import { SystemDictionary } from "../src/classes/SystemDictionary"
+import { Chunker } from "../src/compiler/codefile"
+import { compile } from "../src/compiler/compile"
 
 class ST_Object {
     static _subclass_instanceVariableNames_classVariableNames_poolDictionaries_category_(
@@ -13,10 +14,6 @@ class ST_Object {
         poolDictionaries: ST_String,
         category: ST_String
     ) {
-        // what smalltalk would do here:
-        // ST_Object would be an instance of
-        console.log(`Object subclass: #${subclass} instanceVariableNames: '${instanceVariableNames}' ...`)
-
         let clazz = new ST_Class()
         clazz.instanceVariables = instanceVariableNames
         clazz.name = subclass.value
@@ -40,9 +37,65 @@ class ST_Behaviour {
     }
 }
 
+class ST_ClassOrganizer {
+    globalComment: ST_String | null = null
+    categoryArray: any
+    categoryStops: any
+    elementArray: any
+
+    /**
+     * Answer the comment associated with the object that refers to the receiver.
+     */
+    _classComment() {
+        if (this.globalComment === undefined) {
+            return new ST_String("")
+        }
+        return this.globalComment
+    }
+    _classComment_(aString: ST_String) {
+        if (aString.value.length === 0) {
+            this.globalComment = null
+        } else {
+            this.globalComment = aString
+        }
+    }
+}
+
 class ST_ClassDescription extends ST_Behaviour {
     instanceVariables: any
-    organization: any
+    organization?: ST_ClassOrganizer
+
+    /**
+     * Set the receiver's comment to be the argument, aString.
+     */
+    _comment_(aString: ST_String) {
+        this._organization()._classComment_(aString)
+    }
+    /**
+     * Answer the receiver's comment.
+     */
+    _comment() {
+        return this._organization()._classComment()
+    }
+    /**
+     * Answer the instance of ClassOrganizer that represents the organization
+     * of the messages of the receiver.
+     */
+    _organization() {
+        if (this.organization === undefined) {
+            this.organization = new ST_ClassOrganizer()
+        }
+        return this.organization
+    }
+}
+
+class ClassCategoryReader {
+    clazz: ST_Class
+    category: ST_String
+    constructor(clazz: ST_Class, category: ST_String) {
+        this.clazz = clazz
+        this.category = category
+    }
 }
 
 // Every object is an instance of a class. ???
@@ -55,6 +108,15 @@ class ST_Class extends ST_ClassDescription {
     _name() {
         return this.name
     }
+    /**
+     * Answer a ClassCategoryReader for accessing the messages in the method
+	 * dictionary category, aString, of the receiver.
+     */
+    _methodsFor_(aString: ST_String) {
+        console.log(`Class methodsFor: ${aString}`)
+        // ^ClassCategoryReader class: self category: aString asSymbol
+        return new ClassCategoryReader(this, aString)
+    }
 }
 
 // Every class is an instance of a metaclass.
@@ -63,27 +125,10 @@ class ST_Class extends ST_ClassDescription {
 // we also 
 class ST_MetaClass extends ST_ClassDescription {
     thisClass?: ST_Class
-
-    // override new(): ST_Class {
-    //     if (this.thisClass !== undefined) {
-    //         throw Error("A Metaclass should only have one instance")
-    //     }
-    //     this.thisClass = super._new()
-    //     return this.thisClass
-    // }
-
-    // this is the method creating a ST_MetaClass
-    // for now: DO NOT IMPLEMENT IT, USE ST_Object's subclass:... instead
-    // _name_inEnvironment_subclassOf(
-    //     newName: ST_Symbol,
-    //     environ: ST_SystemDictionary,
-    //     sup: ST_Symbol // this would be where we get the prototype
-    // ) {
-    // }
 }
 
 export function makeGlobalScope() {
-    const scope = new ST_Scope()
+    const scope = new Scope()
 
     const dict = new SystemDictionary()
     dict._at_put_("Smalltalk", dict)
@@ -93,18 +138,22 @@ export function makeGlobalScope() {
     return scope
 }
 
-function evaluate(source: string) {
-    const scope = makeGlobalScope()
-    setLexer(source)
+function evaluate(source: string, scope?: Scope) {
+    if (scope === undefined) { scope = makeGlobalScope() }
+    const lexer = setLexer(source)
     const node = program()
     // node?.printTree()
+    const unparsed = lexer.unparsed()
+    if (unparsed.length !== 0) {
+        console.log(`UNPARSED: ${unparsed}`)
+    }
     const code = compile(node!, scope)
     // console.log(code)
     try {
         return (new Function(code))()
     } catch (e) {
-        // console.error(code)
-        // console.log(globalThis.st.foo)
+        console.error(code)
+        // console.log(globalThis.st)
         if (e instanceof TypeError) {
             // console.log(e.stack)
         }
@@ -149,21 +198,62 @@ describe("runtime", () => {
     describe("create class", () => {
         it("subclass", () => {
             evaluate(`
-                | d |
                 Object subclass: #Dot
                     instanceVariableNames: 'x y'
                     classVariableNames: ''
                     poolDictionaries: ''
                     category: 'Yoo-Test'.
-                d := Dot new.
-                Smalltalk at: #bar put: d.
-                Smalltalk at: #foo put: d class name.
+                Smalltalk at: #obj put: Dot new.
+                Smalltalk at: #name put: obj class name.
             `)
-            // console.log((window as any).st)
-            expect(SystemDictionary.at("foo")).to.equal("Dot")
-
-            console.log(SystemDictionary.at("bar"))
+            expect(SystemDictionary.at("name")).to.equal("Dot")
         })
-        // NEXT STEP: add method
+        it("comment", () => {
+            const r = evaluate(`
+                Object subclass: #Dot
+                    instanceVariableNames: 'x y'
+                    classVariableNames: ''
+                    poolDictionaries: ''
+                    category: 'Yoo-Test'.
+                Dot comment: 'The dot is actually a point.'.
+                Dot comment.
+            `)
+            expect(r.value).to.equal("The dot is actually a point.")
+        })
+        it.only("method", () => {
+            const codefile = new Chunker(`
+                Object subclass: #Dot
+                    instanceVariableNames: 'x y'
+                    classVariableNames: ''
+                    poolDictionaries: ''
+                    category: 'Yoo-Test'.
+                !Dot methodsFor: 'yoo-work'!
+            `)
+
+            //   !Dot methodsFor: 'yoo-work'!
+            //     init
+            //         x := 0.
+            //     ! !
+            const scope = makeGlobalScope()
+            let classScope: Scope | undefined
+            while (true) {
+                const chunk = codefile.chunk()
+                if (chunk === null) { break }
+                if (chunk.length === 0) {
+                    console.log('end of methods')
+                    classScope = undefined
+                } else {
+                    const r = evaluate(chunk, classScope ? classScope : scope)
+                    if (r instanceof ClassCategoryReader) {
+                        console.log('start methods')
+                        classScope = new Scope(scope, r.clazz)
+                    }
+                }
+                // console.log('-------------')
+                // console.log(chunk)
+            }
+
+            // globalThis.st.Dot._methodsFor_(new ST_String("yoo-work"))
+        })
     })
 })

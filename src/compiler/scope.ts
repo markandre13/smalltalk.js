@@ -1,20 +1,20 @@
 
 
-export class ST_Scope {
+export class Scope {
     static readonly localVariable = Symbol("local-variable")
     static readonly objectVariable = Symbol("object-variable")
     static readonly globalVariable = Symbol("global-variable")
 
-    private parent?: ST_Scope
+    private parent?: Scope
     private map = new Map<string, any>();
-    constructor(parent: ST_Scope | undefined = undefined) {
+    constructor(parent: Scope | undefined = undefined) {
         this.parent = parent
     }
     init(name: string, variable: any) {
         this.map.set(name, variable)
     }
     set(name: string, variable: any) {
-        let scope: ST_Scope | undefined = this
+        let scope: Scope | undefined = this
         while (scope !== undefined && !scope.map.has(name)) {
             scope = scope.parent
         }
@@ -29,7 +29,7 @@ export class ST_Scope {
             return value
         }
         if (this.parent === undefined) {
-            return ST_Scope.globalVariable
+            return Scope.globalVariable
             // if ((window as any).Smalltalk.privateHas(name)) {
             //     return ST_Scope.globalVariable
             // }

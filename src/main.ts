@@ -1,11 +1,11 @@
+import { ST_Transcript } from "./classes/ST_Transcript"
+import { compile } from "./compiler/compile"
+import { makeGlobalScope } from "./compiler/evaluate"
+import { initialize } from "./compiler/initialize"
+import { program, setLexer } from "./compiler/parser"
 import { Canvas } from "./viewkit/Canvas"
-import { makeGlobalScope } from "./evaluate"
-import { program, setLexer } from "./parser"
 import { SystemBrowser } from "./viewkit/SystemBrowser"
 import { WindowManager } from "./viewkit/WindowManager"
-import { ST_Transcript } from "./classes/ST_Transcript"
-import { initialize } from "./initialize"
-import { compile } from "./compile"
 
 initialize()
 const scope = makeGlobalScope()

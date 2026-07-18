@@ -1,13 +1,13 @@
 import { expect, it, describe } from "vitest"
-import { expression, method_definition, program, setLexer } from "../src/parser"
+import { expression, method_definition, program, setLexer } from "../src/compiler/parser"
 import { compile } from "../src/compile"
 import { initialize } from "../src/initialize"
 import { makeGlobalScope } from "../src/evaluate"
-import { Type } from "../src/type"
+import { Type } from "../src/compiler/type"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
 import { ST_Point } from "../src/classes/ST_Point"
-import { ST_Scope } from "../src/classes/ST_Scope"
-import { ST_Number } from "../src/classes/ST_Number"
+import { Scope } from "../src/compiler/scope"
+import { ST_Number } from "../src/classes/numeric/ST_Number"
 
 // while smalltalk has no type checks, it requires to declare variable names.
 // hence we could track names, rewrite them and throw errors
@@ -502,9 +502,9 @@ describe("compile", () => {
                 console.log(`UNPARSED: ${lexer.unparsed()}`)
             }
             const scope = makeGlobalScope()
-            const clazz = new ST_Scope(scope)
-            clazz.set("x", ST_Scope.objectVariable)
-            clazz.set("y", ST_Scope.objectVariable)
+            const clazz = new Scope(scope)
+            clazz.set("x", Scope.objectVariable)
+            clazz.set("y", Scope.objectVariable)
 
             let code = compile(node, clazz)
             expect(code).to.equal(";let deltaPoint;deltaPoint=(delta)._asPoint();return (this.x).$add((deltaPoint)._x()).$dot((this.y).$add((deltaPoint)._y()));")

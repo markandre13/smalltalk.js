@@ -1,6 +1,6 @@
 import { expect, it, describe } from "vitest"
 import { Lexer } from "../src/lexer"
-import { Type } from "../src/type"
+import { Type } from "../src/compiler/type"
 
 describe("lex", () => {
     describe("identifier", () => {

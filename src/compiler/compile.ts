@@ -2,14 +2,14 @@
  * transpile the smalltalk parse tree to javascript
  */
 
-import { ST_Scope } from "./classes/ST_Scope"
+import { Scope } from "./scope"
 import { makeGlobalScope, st_method_name } from "./evaluate"
-import type { Node } from "./node"
+import { Node } from "./node"
 import { Type } from "./type"
 
 // TODO: we actually want to match the lines of the output to the input
 
-export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScope()): string {
+export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()): string {
     if (node === undefined) {
         return "undefined"
     }
@@ -18,7 +18,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
     switch (node.type) {
         case Type.SYN_METHOD_DEFINITION:
         case Type.SYN_INITIALIZER_DEFINITION: {
-            const s = new ST_Scope(scope)
+            const s = new Scope(scope)
             let r = ''
             for (const n of node.child) {
                 if (n !== undefined) {
@@ -63,10 +63,10 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
                 case Type.TKN_ASSIGNMENT: {
                     let lh: string
                     switch (scope.get(last.child[0]!.text!)) {
-                        case ST_Scope.globalVariable:
+                        case Scope.globalVariable:
                             lh = `st.${last.child[0]!.text}`
                             break
-                        case ST_Scope.objectVariable:
+                        case Scope.objectVariable:
                             lh = `this.${last.child[0]!.text}`
                             break
                         default:
@@ -96,10 +96,10 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
         case Type.TKN_ASSIGNMENT: {
             let lh: string
             switch (scope.get(node.child[0]!.text!)) {
-                case ST_Scope.globalVariable:
+                case Scope.globalVariable:
                     lh = `st.${node.child[0]!.text}`
                     break
-                case ST_Scope.objectVariable:
+                case Scope.objectVariable:
                     lh = `this.${node.child[0]!.text}`
                     break
                 default:
@@ -116,13 +116,13 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
             if (a === null) {
                 return node.text!
             }
-            if (a === ST_Scope.localVariable) {
+            if (a === Scope.localVariable) {
                 return node.text!
             }
-            if (a === ST_Scope.objectVariable) {
+            if (a === Scope.objectVariable) {
                 return `this.${node.text}`
             }
-            if (a === ST_Scope.globalVariable) {
+            if (a === Scope.globalVariable) {
                 return `st.${node.text}`
             }
 
@@ -139,7 +139,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
         case Type.TKN_INTEGER:
             return `new st.Number(${node.text})`
         case Type.SYN_BLOCK_CLOSURE: {
-            let _scope = new ST_Scope(scope)
+            let _scope = new Scope(scope)
             let _args: Node | undefined = undefined
             let _tmps: Node | undefined = undefined
             let _stmt: Node | undefined = undefined
@@ -202,7 +202,7 @@ export function compile(node: Node | undefined, scope: ST_Scope = makeGlobalScop
     throw Error(`compile(${node.toString()}): not implemented`)
 }
 
-function compileMessage(primary: string, node: Node, scope: ST_Scope) {
+function compileMessage(primary: string, node: Node, scope: Scope) {
     const methodName = st_method_name(node.text!)
     switch (node.type) {
         case Type.SYN_UNARY: // unary
@@ -220,7 +220,7 @@ function compileMessage(primary: string, node: Node, scope: ST_Scope) {
     throw Error(`compileMessage(...,${Type[node.type]},...) not implemented`)
 }
 
-function compileExpression(stmt: string, node: Node, scope: ST_Scope): string {
+function compileExpression(stmt: string, node: Node, scope: Scope): string {
     // console.log("COMPILE EXPRESSION")
     // node.printTree()
     let result = compile(node.child[0]!, scope)

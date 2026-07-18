@@ -1,4 +1,4 @@
-import { CodeFile } from "../codefile"
+import { CodeFile } from "../compiler/codefile"
 import { CodeView } from "./CodeView"
 import { ListView } from "./ListView"
 import { View } from "./View"

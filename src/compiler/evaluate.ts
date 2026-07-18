@@ -2,12 +2,7 @@
 // runtime support
 //
 
-import { ST_Array } from "./classes/ST_Array"
-import { ST_Number } from "./classes/ST_Number"
-import { ST_Pen } from "./classes/ST_Pen"
-import { ST_Point } from "./classes/ST_Point"
-import { ST_Scope } from "./classes/ST_Scope"
-import { ST_Transcript } from "./classes/ST_Transcript"
+import { Scope } from "./scope"
 import { initialize } from "./initialize"
 
 // OKAY. i have collected enough information without grasping it yet
@@ -125,7 +120,7 @@ export function st_method_name(s: string): string {
 }
 
 export function makeGlobalScope() {
-    const scope = new ST_Scope()
+    const scope = new Scope()
     initialize()
     return scope
 }

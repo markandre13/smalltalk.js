@@ -1,5 +1,5 @@
-import { Canvas } from "../viewkit/Canvas"
-import { ST_Number } from "./ST_Number"
+import { Canvas } from "../../viewkit/Canvas"
+import { ST_Number } from "../numeric/ST_Number"
 import { ST_Point } from "./ST_Point"
 
 export class ST_Pen {

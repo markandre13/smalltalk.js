@@ -1,7 +1,7 @@
 import { ListModel } from "../appkit/ListModel"
 import { NumberModel } from "../appkit/NumberModel"
 import { ValueModel } from "../appkit/ValueModel"
-import { ST_ProtocolType, type CodeFile } from "../codefile"
+import { ST_ProtocolType, type CodeFile } from "../compiler/codefile"
 import { effect } from "../reactivity/computed"
 
 export class SystemBrowserModel {

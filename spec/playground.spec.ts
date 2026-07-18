@@ -1,5 +1,5 @@
 import { it, describe, expect } from "vitest"
-import { program, setLexer } from "../src/parser"
+import { program, setLexer } from "../src/compiler/parser"
 import { compile } from "../src/compile"
 import { initialize } from "../src/initialize"
 

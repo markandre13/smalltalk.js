@@ -1,5 +1,5 @@
 import type { Node } from "../../src/node"
-import { Type } from "../../src/type"
+import { Type } from "../../src/compiler/type"
 
 export function expectNodeTree(node: Node, expect: [number, Type | undefined, string?][]) {
     const flat: [number, Type | undefined, string?][] = []

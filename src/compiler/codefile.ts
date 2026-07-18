@@ -92,17 +92,40 @@ export enum ST_ProtocolType {
 // const filename = "files/Smalltalk-80.sources"
 // const b = readFileSync(filename)
 
-export class CodeFile {
-    filename: string
-    buffer: Uint8Array
+export class Chunker {
+    buffer: string
     offset = 0
+    constructor(buffer: string) {
+        this.buffer = buffer
+    }
+
+    /**
+     * Smalltalk-80 code files are separated into chunks, marked by a single '!'.
+     * '!!' is an escape to mark for '!'
+     */
+    chunk() {
+        if (this.offset >= this.buffer.length) { return null }
+        const start = this.offset
+        while (this.offset < this.buffer.length) {
+            let char = this.buffer[this.offset++]
+            if (char === '!') {
+                const nextByte = this.buffer[this.offset]!
+                if (nextByte !== '!') { break }
+            }
+        }
+        return this.buffer.substring(start, this.offset - 1).trim() // trim changes...
+    }
+}
+
+export class CodeFile extends Chunker {
+    filename: string
 
     categories = new Map<CategoryName, Map<ClassName, ST_Class>>()
     classes = new Map<ClassName, ST_Class>()
 
     constructor(filename: string, buffer: Uint8Array) {
+        super(new TextDecoder().decode(buffer))
         this.filename = filename
-        this.buffer = buffer
         this.parse()
 
         // while (true) {
@@ -146,10 +169,10 @@ export class CodeFile {
 
                     let selectorAndArgumentNames = txt.split('\n')[0]!.split(' ')
                     let selector = ""
-                    for(let i=0; i<selectorAndArgumentNames.length; i += 2) {
+                    for (let i = 0; i < selectorAndArgumentNames.length; i += 2) {
                         selector += selectorAndArgumentNames[i]
                     }
-               
+
                     const protocols = clazz.protocols[type]
                     let proto = protocols!.get(protocol)
                     if (proto === undefined) {
@@ -236,39 +259,6 @@ export class CodeFile {
         //     console.log(categoryName)
         // }
     }
-    /**
-     * Smalltalk-80 code files are separated into chunks, marked by a single '!'.
-     * '!!' is an escape to mark for '!'
-     */
-    chunk() {
-        if (this.offset >= this.buffer.length) {
-            return null
-        }
-
-        let txt = ""
-        while (this.offset < this.buffer.length) {
-            let byte = this.buffer[this.offset++]!
-            if (byte === EXCLAMATION_MARK) {
-                const nextByte = this.buffer[this.offset]!
-                if (nextByte !== EXCLAMATION_MARK) {
-                    break
-                }
-            }
-            switch (byte) {
-                case 0x0c:
-                    break
-                case 0x0d:
-                    txt += '\n'
-                    break
-                case 0x09:
-                    txt += '\t'
-                    break
-                default:
-                    txt += String.fromCharCode(byte)
-            }
-        }
-        return txt.trim()
-    }
 
     // TODO: Some methods contain a text like
     //   See Object documentation whatIsAPrimitive.
@@ -290,8 +280,8 @@ export class CodeFile {
             .replaceAll('>', '&gt;')
             .replaceAll('^', '↑')
             .replaceAll('_', '←')
-            // .replaceAll('\n', '<br/>')
-            // .replaceAll('\t', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
+        // .replaceAll('\n', '<br/>')
+        // .replaceAll('\t', '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;')
     }
 }
 

@@ -1,10 +1,10 @@
-import { ST_Array } from "./classes/ST_Array"
-import { ST_Number } from "./classes/ST_Number"
-import { ST_Pen } from "./classes/ST_Pen"
-import { ST_Point } from "./classes/ST_Point"
-import { ST_String } from "./classes/ST_String"
-import { ST_Transcript } from "./classes/ST_Transcript"
-import { SystemDictionary } from "./classes/SystemDictionary"
+import { ST_Array } from "../classes/collections/ST_Array"
+import { ST_Number } from "../classes/numeric/ST_Number"
+import { ST_Pen } from "../classes/graphics/ST_Pen"
+import { ST_Point } from "../classes/graphics/ST_Point"
+import { ST_String } from "../classes/ST_String"
+import { ST_Transcript } from "../classes/ST_Transcript"
+import { SystemDictionary } from "../classes/SystemDictionary"
 
 /**
  * setup the global environment to execute smalltalk
