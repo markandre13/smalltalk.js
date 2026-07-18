@@ -1,11 +1,9 @@
 import { it, describe, expect } from "vitest"
 import { program, setLexer } from "../src/compiler/parser"
-import { compile } from "../src/compile"
-import { initialize } from "../src/initialize"
+import { compile } from "../src/compiler/compile"
 
 describe("playground", () => {
     it.skip("load program", () => {
-        initialize()
         // codefile.ts reads the source as chunks which can be compiled individually
         // they contain method sections
         // but there's also the way to create methods / classes in the browser

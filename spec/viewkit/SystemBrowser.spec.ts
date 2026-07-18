@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
 import { SystemBrowserModel } from "../../src/appkit/SystemBrowserModel"
-import { CodeFile, ST_ProtocolType } from "../../src/codefile"
+import { CodeFile, ST_ProtocolType } from "../../src/compiler/codefile"
 
 describe("SystemBrowser", () => {
     let codefile: CodeFile
@@ -33,7 +33,7 @@ describe("SystemBrowser", () => {
         expect(model.code.value).to.match(/Answer a new instance of me/)
     })
 
-    it.only("selecting protocol clears method", () => {
+    it("selecting protocol clears method", () => {
         const model = new SystemBrowserModel(codefile)
         model.selectedCategory.value = 0
         model.selectedClass.value = 0

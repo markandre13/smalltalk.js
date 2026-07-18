@@ -1,15 +1,14 @@
 import { expect, it, describe } from "vitest"
 import { Type } from "../src/compiler/type"
 import { expression, message_pattern, program, setLexer } from "../src/compiler/parser"
-import { ST_Array } from "../src/classes/ST_Array"
 import { ST_Number } from "../src/classes/numeric/ST_Number"
 import { Scope } from "../src/compiler/scope"
 import { ST_String } from "../src/classes/ST_String"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
-import { initialize } from "../src/initialize"
 import { expectNodeTree } from "./detail/expectNodeTree"
-import { compile } from "../src/compile"
 import { SystemDictionary } from "../src/classes/SystemDictionary"
+import { compile } from "../src/compiler/compile"
+import { ST_Array } from "../src/classes/collections/ST_Array"
 
 // TODO
 // [ ] classes
@@ -137,8 +136,6 @@ import { SystemDictionary } from "../src/classes/SystemDictionary"
 
 // Class comment
 // Object
-
-initialize()
 
 describe("parse", () => {
     describe("messages", () => {
@@ -626,7 +623,7 @@ describe("parse", () => {
             const node = message_pattern()
             // node?.printTree()
             expect(node?.type).toBe(Type.SYN_MESSAGE_PATTERN)
-            expect(node?.child[0]?.type).toBe(Type.TKN_IDENTIFIER)
+            expect(node?.child[0]?.type).toBe(Type.SYN_UNARY)
             expect(node?.child[0]?.text).toBe("method")
         })
         it("binary", () => {

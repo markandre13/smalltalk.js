@@ -1,13 +1,12 @@
-import { expect, it, describe } from "vitest"
-import { expression, method_definition, program, setLexer } from "../src/compiler/parser"
-import { compile } from "../src/compile"
-import { initialize } from "../src/initialize"
-import { makeGlobalScope } from "../src/evaluate"
-import { Type } from "../src/compiler/type"
-import { ST_Transcript } from "../src/classes/ST_Transcript"
-import { ST_Point } from "../src/classes/ST_Point"
-import { Scope } from "../src/compiler/scope"
+import { describe, expect, it } from "vitest"
+import { ST_Point } from "../src/classes/graphics/ST_Point"
 import { ST_Number } from "../src/classes/numeric/ST_Number"
+import { ST_Transcript } from "../src/classes/ST_Transcript"
+import { compile } from "../src/compiler/compile"
+import { expression, method_definition, program, setLexer } from "../src/compiler/parser"
+import { Scope } from "../src/compiler/scope"
+import { Type } from "../src/compiler/type"
+import { makeGlobalScope } from "../src/compiler/evaluate"
 
 // while smalltalk has no type checks, it requires to declare variable names.
 // hence we could track names, rewrite them and throw errors
@@ -28,8 +27,6 @@ import { ST_Number } from "../src/classes/numeric/ST_Number"
 // Dictionary variableSubclass: #SystemDictionary
 //   'I am a special dictionary that supports protocol for asking questions about the structure of the system.  My only instance is Smalltalk.'
 // yep, that seems to be the place were we put global classes and variables
-
-initialize()
 
 describe("compile", () => {
     describe("printNl", () => {

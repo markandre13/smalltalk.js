@@ -1,5 +1,5 @@
 import { it, describe } from "vitest"
-import { expression, setLexer } from "../src/compiler/parser"
+import { expression, method_definition, setLexer } from "../src/compiler/parser"
 import { Type } from "../src/compiler/type"
 import { expectNodeTree } from "./detail/expectNodeTree"
 
@@ -280,6 +280,64 @@ describe("parser", () => {
             it("xxx", () => {
 
             })
+        })
+    })
+    describe("method_definition", () => {
+        it("unary", () => {
+            setLexer(`
+                init
+                    x := 4
+            `)
+            const node = method_definition()
+            node?.printTree()
+            expectNodeTree(node, [
+                [0, Type.SYN_METHOD_DEFINITION],
+                [1, Type.SYN_MESSAGE_PATTERN],
+                [2, Type.SYN_UNARY, "init"],
+                [1, Type.SYN_STATEMENTS],
+                [2, Type.TKN_ASSIGNMENT],
+                [3, Type.TKN_IDENTIFIER, 'x'],
+                [3, Type.SYN_EXPRESSION],
+                [4, Type.TKN_INTEGER, '4'],
+            ])
+        })
+        it("binary", () => {
+            setLexer(`
+                < a
+                    x < a.
+            `)
+            const node = method_definition()
+            expectNodeTree(node, [
+                [0, Type.SYN_METHOD_DEFINITION],
+                [1, Type.SYN_MESSAGE_PATTERN],
+                [2, Type.TKN_BINARY, "<"],
+                [2, Type.TKN_IDENTIFIER, "a"],
+                [1, Type.SYN_STATEMENTS],
+                [2, Type.SYN_EXPRESSION],
+                [3, Type.TKN_IDENTIFIER, 'x'],
+                [3, Type.SYN_MESSAGES],
+                [4, Type.TKN_BINARY, '<'],
+                [5, Type.TKN_IDENTIFIER, 'a'],
+            ])
+        })
+        it("keyword", () => {
+            setLexer(`
+                init: a
+                    x := a
+            `)
+            const node = method_definition()
+            node?.printTree()
+            expectNodeTree(node, [
+                [0, Type.SYN_METHOD_DEFINITION],
+                [1, Type.SYN_MESSAGE_PATTERN],
+                [2, Type.TKN_KEYWORD, "init:"],
+                [2, Type.TKN_IDENTIFIER, "a"],
+                [1, Type.SYN_STATEMENTS],
+                [2, Type.TKN_ASSIGNMENT],
+                [3, Type.TKN_IDENTIFIER, 'x'],
+                [3, Type.SYN_EXPRESSION],
+                [4, Type.TKN_IDENTIFIER, 'a'],
+            ])
         })
     })
 })

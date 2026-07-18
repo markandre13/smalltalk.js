@@ -1,4 +1,5 @@
-
+import type { ST_Class } from "../classes/kernel/ST_Class"
+import type { ST_ClassDescription } from "../classes/kernel/ST_ClassDescription"
 
 export class Scope {
     static readonly localVariable = Symbol("local-variable")
@@ -6,9 +7,16 @@ export class Scope {
     static readonly globalVariable = Symbol("global-variable")
 
     private parent?: Scope
+    clazz?: ST_Class
+    private instanceVariables?: Set<string>
     private map = new Map<string, any>();
-    constructor(parent: Scope | undefined = undefined) {
+    constructor(parent: Scope | undefined = undefined, clazz?: ST_Class) {
         this.parent = parent
+        if (clazz) {
+            this.clazz = clazz
+            this.instanceVariables = new Set(clazz.instanceVariables.value.split(" ").map((it: string) => it.trim()))
+            // console.log(`CREATE CLASS SCOPE ${instanceVariables}`)
+        }
     }
     init(name: string, variable: any) {
         this.map.set(name, variable)
@@ -24,6 +32,12 @@ export class Scope {
         scope.map.set(name, variable)
     }
     get(name: string): any {
+        if (this.instanceVariables) {
+            if (this.instanceVariables.has(name)) {
+                return Scope.objectVariable
+            }
+        }
+
         const value = this.map.get(name)
         if (value !== undefined) {
             return value

@@ -111,6 +111,7 @@ function unary_pattern() {
         return undefined
     }
     const t1 = new Node(Type.SYN_MESSAGE_PATTERN)
+    t0.type = Type.SYN_UNARY
     t1.append(t0)
     return t1
 }
