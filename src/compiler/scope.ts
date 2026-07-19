@@ -14,7 +14,7 @@ export class Scope {
         this.parent = parent
         if (clazz) {
             this.clazz = clazz
-            this.instanceVariables = new Set(clazz.instanceVariables.value.split(" ").map((it: string) => it.trim()))
+            this.instanceVariables = new Set(clazz.instanceVariables!.value.split(" ").map((it: string) => it.trim()))
             // console.log(`CREATE CLASS SCOPE ${instanceVariables}`)
         }
     }

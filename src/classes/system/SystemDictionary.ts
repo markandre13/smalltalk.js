@@ -1,4 +1,4 @@
-import type { ST_String } from "./ST_String"
+import type { ST_String } from "../collections/ST_String"
 
 /**
  * Manages Smalltalk's global variables.

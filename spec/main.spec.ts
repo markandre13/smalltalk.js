@@ -6,7 +6,7 @@ import { Scope } from "../src/compiler/scope"
 import { ST_String } from "../src/classes/ST_String"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
 import { expectNodeTree } from "./detail/expectNodeTree"
-import { SystemDictionary } from "../src/classes/SystemDictionary"
+import { SystemDictionary } from "../src/classes/system/SystemDictionary"
 import { compile } from "../src/compiler/compile"
 import { ST_Array } from "../src/classes/collections/ST_Array"
 

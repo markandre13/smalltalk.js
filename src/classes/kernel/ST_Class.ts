@@ -1,6 +1,6 @@
+import type { ST_String } from "../collections/ST_String"
 import { ClassCategoryReader } from "./ClassCategoryReader"
-import { ST_ClassDescription } from "../ST_ClassDescription"
-import type { ST_String } from "../ST_String"
+import { ST_ClassDescription } from "./ST_ClassDescription"
 
 // Every object is an instance of a class. ???
 // does it have a reference to it's MetaClass?

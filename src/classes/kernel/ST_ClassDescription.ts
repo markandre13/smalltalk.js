@@ -1,4 +1,4 @@
-import type { ST_String } from "../ST_String"
+import type { ST_String } from "../collections/ST_String"
 import { ST_Behaviour } from "./ST_Behaviour"
 import { ST_ClassOrganizer } from "./ST_ClassOrganizer"
 

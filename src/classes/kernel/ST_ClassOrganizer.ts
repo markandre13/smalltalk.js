@@ -1,4 +1,4 @@
-import { ST_String } from "../ST_String"
+import { ST_String } from "../collections/ST_String"
 
 export class ST_ClassOrganizer {
     globalComment: ST_String | null = null;

@@ -1,5 +1,5 @@
-import type { ST_String } from "../ST_String"
-import { SystemDictionary } from "../SystemDictionary"
+import type { ST_String } from "../collections/ST_String"
+import { SystemDictionary } from "../system/SystemDictionary"
 import { ST_Class } from "./ST_Class"
 
 export class ST_Object {

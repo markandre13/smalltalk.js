@@ -1,4 +1,4 @@
-import type { ST_String } from "../ST_String"
+import type { ST_String } from "../collections/ST_String"
 import type { ST_Class } from "./ST_Class"
 
 export class ClassCategoryReader {

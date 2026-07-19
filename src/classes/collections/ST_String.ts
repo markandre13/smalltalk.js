@@ -1,4 +1,4 @@
-import { ST_Transcript } from "./ST_Transcript"
+import { ST_Transcript } from "../ST_Transcript"
 
 export class ST_String {
     value: string
