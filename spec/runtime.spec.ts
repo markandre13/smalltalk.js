@@ -76,7 +76,15 @@ function addMethod(source: string, scope: Scope) {
 
     args.push(code)
 
-    const method = new Function(...args)
+    let method: Function
+    try {
+        method = new Function(...args)
+    } catch (e) {
+        console.log(code)
+        console.log(e)
+        console.log(e.stack)
+        throw e
+    }
     Object.defineProperty(method, "name", { value: `${scope.clazz.name} ${identifier}` })
 
     // console.log(scope.clazz)
@@ -86,7 +94,6 @@ function addMethod(source: string, scope: Scope) {
     console.log("OK")
 
     return method
-
 }
 
 function evaluate(source: string, scope?: Scope) {
@@ -499,7 +506,6 @@ setX: xPoint setY: yPoint
 
 Point class
 	instanceVariableNames: ''!
-
 
 !Point class methodsFor: 'instance creation'!
 x: xInteger y: yInteger 

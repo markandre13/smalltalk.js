@@ -13,6 +13,7 @@ export enum Type {
     TKN_RETURN,
     TKN_ASSIGNMENT,
     TKN_COMMENT,
+    TKN_CHARACTER,
     TKN_STRING,
     TKN_NUMBER,
 

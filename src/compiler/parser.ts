@@ -744,7 +744,10 @@ function literal(): Node | undefined {
     if (t0 !== undefined) {
         return t0
     }
-    // character_literal
+    t0 = character_literal()
+    if (t0 !== undefined) {
+        return t0
+    }
     t0 = symbol_literal()
     if (t0 !== undefined) {
         return t0
@@ -796,6 +799,14 @@ function numeric(): Node | undefined {
 }
 
 // 3.4.6.2 Character Literals
+function character_literal() {
+    let t0 = lexer.lex()
+    if (t0?.type === Type.TKN_CHARACTER) {
+        return t0
+    }
+    lexer.unlex(t0)
+    return undefined
+}
 
 // 3.4.6.3 String Literals
 function string_literal() {

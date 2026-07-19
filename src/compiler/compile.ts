@@ -133,6 +133,7 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
             throw Error(`undeclared identifier ${node.text?.replaceAll('_', ':')}`)
         }
         case Type.TKN_STRING:
+        case Type.TKN_CHARACTER:
             return `new st.String('${node.text}')` // FIXME: need to escape node.text
         case Type.TKN_QUOTED_SELECTOR:
             return `new st.String('${node.text}')` // FIXME: this should be unique object...

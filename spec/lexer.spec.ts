@@ -42,7 +42,7 @@ describe("lex", () => {
         // :=
     })
     describe("3.4.6 literal", () => {
-        describe("3.4.6.1 numeric literals", () => {
+        describe("3.5.6 numbers", () => {
             // {uint}
             // {radix}r{alphanumeric}
             // {uint}.{uint}
@@ -103,13 +103,13 @@ describe("lex", () => {
             })
             // scaledDecimal
         })
-        // describe("3.5.6 numbers", () => {
-        //     // decimal integer
-        //     // radix integer
-        //     // float
-        //     // scaled decimal            
-        // })
-        describe("3.5.7 quoted character")
+        describe("3.5.7 quoted character", () => {
+            it("$a", () => {
+                const node = new Lexer("$a1'").lex()
+                expect(node?.type).toBe(Type.TKN_CHARACTER)
+                expect(node?.text).toBe("a")
+            })
+        })
         describe("3.5.8 quoted string", () => {
             it("within single ticks", () => {
                 const node = new Lexer("'hello'").lex()

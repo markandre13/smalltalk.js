@@ -96,6 +96,8 @@ const smalltalkMethodNameToJsMethodName = new Map<string, string>([
     ["-", "$sub"],
     ["*", "$mul"],
     ["/", "$div"],
+    ["//", "$idiv"],
+    ["//", "$mod"],
     ["@", "$dot"],
     ["<", "$lt"],
     ["<=", "$le"],

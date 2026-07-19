@@ -154,6 +154,9 @@ export class Lexer {
                         case '#':
                             this.state = 8
                             continue
+                        case '$':
+                            this.state = 15
+                            continue
                         default:
                             if (Lexer.isAlpha(c)) {
                                 this.text = ""
@@ -295,6 +298,8 @@ export class Lexer {
                     this.ungetc()
                     this.state = 0
                     return new Node(Type.TKN_HASHED_STRING, this.text)
+                case 15: // $?
+                    return new Node(Type.TKN_CHARACTER, c)
                 case 20: // {digit}?
                     if (c === 'r') {
                         this.radix = parseInt(this.text!)

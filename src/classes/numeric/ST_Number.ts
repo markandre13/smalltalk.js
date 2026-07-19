@@ -31,7 +31,7 @@ export class ST_Number {
      * Integer quotient defined by division with truncation toward negative
      * infinity. 9//4 = 2, -9//4 = -3, -0.9//0.4 = -3
      */
-    // FIXME: ^(self / aNumber) floor
+    $idiv(a: ST_Number) { return new ST_Number(Math.floor(this.value / a.value)) }
     $mod(a: ST_Number) { return new ST_Number(this.value % a.value) }
     /**
      * Create an ...
