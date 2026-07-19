@@ -136,10 +136,12 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
             return `new st.String('${node.text}')` // FIXME: need to escape node.text
         case Type.TKN_QUOTED_SELECTOR:
             return `new st.String('${node.text}')` // FIXME: this should be unique object...
-        case Type.TKN_INTEGER:
-            return `new st.Number(${node.text})`
+        case Type.TKN_NUMBER:
+            return `new st.Number(${node.number})`
         case Type.SYN_BLOCK_CLOSURE: {
+            // track a new scope
             let _scope = new Scope(scope)
+            // collect closure parts
             let _args: Node | undefined = undefined
             let _tmps: Node | undefined = undefined
             let _stmt: Node | undefined = undefined
@@ -155,15 +157,18 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
                         _stmt = child
                 }
             }
+            // write args
             let r = '('
             if (_args) {
                 r += compile(_args, _scope)
             }
             r += ')=>'
+
             if (_tmps) {
                 r += '{'
                 r += compile(_tmps, _scope) + ';'
             }
+
             if (_stmt) {
                 if (_stmt.child.length > 1) {
                     if (_tmps === undefined) {
@@ -172,14 +177,19 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
                     r += `${compile(_stmt, _scope)}}`
                 } else {
                     if (_tmps === undefined) {
-                        if (_stmt.child.length > 1) {
-                            r += compile(_stmt, _scope)
-                        } else {
-                            r += compile(_stmt.child[0], _scope)
-                        }
-                    } else {
-                        r += `${compile(_stmt, _scope)}}`
+                        r += '{'
                     }
+                    r += `${compile(_stmt, _scope)}}`
+                    
+                    // if (_tmps === undefined) {
+                    //     if (_stmt.child.length > 1) {
+                    //         r += compile(_stmt, _scope)
+                    //     } else {
+                    //         r += compile(_stmt.child[0], _scope)
+                    //     }
+                    // } else {
+                    //     r += `${compile(_stmt, _scope)}}`
+                    // }
                 }
             } else {
                 if (_tmps === undefined) {
@@ -187,7 +197,10 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
                 }
                 r += "}"
             }
+
             // console.log(`RESULT: ${r}`)
+
+            // TODO: do not wrap here
             return '(' + r + ')'
         }
         case Type.TKN_ARRAY_LITERAL: {

@@ -253,165 +253,207 @@ describe("compile", () => {
     })
 
     describe("code block", () => {
-        it("[ :a | ]", () => {
-            setLexer("[ :a | ]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return ((a)=>{});") // SURE?
+        describe("arguments", () => {
+            it("[ :a | ]", () => {
+                setLexer("[ :a | ]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return ((a)=>{});") // SURE?
+            })
+
+            it("[ :a :b | ]", () => {
+                setLexer("[ :a :b | ]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return ((a,b)=>{});")
+            })
+
+            // no temp, 0 stmt
+            it("[ ]", () => {
+                setLexer("[ ]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{});")
+            })
+
+            // no temp, 1 stmt
+            it("[ 7 ]", () => {
+                setLexer("[ 7 ]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{return new st.Number(7)});")
+            })
+
+            // no temp, 2 stmt
+            it("[ 7. 3. ]", () => {
+                setLexer("[ 7. 3. ]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{new st.Number(7);return new st.Number(3)});")
+            })
+
+            // 1 temp, 0 stmt
+            it("[|x|]", () => {
+                setLexer("[|x|]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{let x;});")
+            })
+
+            // 1 temp, 1 stmt
+            it("[|x| x]", () => {
+                setLexer("[|x| x:=1]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{let x;x=new st.Number(1);return x});")
+            })
+
+            // 1 temp, 2 stmt
+            it("[|x| x:=2. x * 3]", () => {
+                setLexer("|a| a:=[|x| x:=2. x * 3]. a value")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("let a;a=(()=>{let x;x=new st.Number(2);return (x).$mul(new st.Number(3))});return (a)._value();")
+                const exec = Function(code)
+                expect(exec().value).toBe(6)
+            })
+
+            // 2 temp, 0 stmt
+            it("[|x y|]", () => {
+                setLexer("[|x y|]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{let x,y;});")
+            })
+
+            // 2 temp, 1 stmt
+            it("[|x y| x:=1]", () => {
+                setLexer("[|x y| x:=1]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{let x,y;x=new st.Number(1);return x});")
+            })
+
+            // 2 temp, 2 stmt
+            it("[|x y| x:=1. y:=2.]", () => {
+                setLexer("[|x y| x:=1. y:=2.]")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return (()=>{let x,y;x=new st.Number(1);y=new st.Number(2);return y});")
+            })
+
+            // no arg
+            it("[ 7 ] value.", () => {
+                setLexer("[ 7 ] value.")
+                const node = program()
+                const code = compile(node)
+                const exec = new Function(code)
+                expect(exec().value).toBe(7)
+            })
+
+            // 1 arg
+            it("[ :x | x + 7 ] value: 3", () => {
+                setLexer("[ :x | x + 7 ] value: 3.")
+                const node = program()
+                const code = compile(node)
+                expect(code).toBe("return ((x)=>{return (x).$add(new st.Number(7))})._value_(new st.Number(3));")
+                const exec = new Function(code)
+                // console.log(exec())
+                expect(exec().value).toBe(10)
+            })
+
+            // 2 arg
+            it("[ :x :y | x + y ] value: 8 value: 2.", () => {
+                setLexer("[ :x :y | x + y ] value: 8 value: 2.")
+                const node = program()
+                const code = compile(node)
+                const exec = new Function(code)
+                expect(exec().value).toBe(10)
+            })
+
+            // 3 arg
+            it("[ :x :y :z | x + y * z] value: 8 value: 2 value: 4.", () => {
+                setLexer("[ :x :y :z | x + y * z] value: 8 value: 2 value: 4.")
+                const node = program()
+                const code = compile(node)
+                const exec = new Function(code)
+                expect(exec().value).toBe(40)
+            })
         })
 
-        it("[ :a :b | ]", () => {
-            setLexer("[ :a :b | ]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return ((a,b)=>{});") // SURE?
+        // closure with return, GNU SmallTalk seems to fail here and returns nil
+        describe("return", () => {
+            it("[^1]", () => {
+                setLexer("[^1]")
+                const node = program()
+                // node?.printTree()
+                const code = compile(node)
+                // console.log(code)
+                expect(code).toBe("return (()=>{return new st.Number(1)});")  
+            })
+            it("[1]", () => {
+                setLexer("[1]")
+                const node = program()
+                // node?.printTree()
+                const code = compile(node)
+                // console.log(code)
+                expect(code).toBe("return (()=>{return new st.Number(1)});")  
+            })
+            it("[1. ^2]", () => {
+                setLexer("[1. ^2]")
+                const node = program()
+                // node?.printTree()
+                const code = compile(node)
+                // console.log(code)
+                expect(code).toBe("return (()=>{new st.Number(1);return new st.Number(2)});")  
+            })
+            it("[1. 2]", () => {
+                setLexer("[1. 2]")
+                const node = program()
+                // node?.printTree()
+                const code = compile(node)
+                // console.log(code)
+                expect(code).toBe("return (()=>{new st.Number(1);return new st.Number(2)});")  
+            })
+
         })
 
-        // no temp, 0 stmt
-        it("[ ]", () => {
-            setLexer("[ ]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{});") // SURE?
-        })
+        describe("scope", () => {
 
-        // no temp, 1 stmt
-        it("[ 7 ]", () => {
-            setLexer("[ 7 ]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>new st.Number(7));") // missing return
-        })
+            it("closure can read outer scope: |a| a:=7. [:b|a+b] value:3.", () => {
+                setLexer("|a| a:=7. [:b|a+b] value:3.")
+                const node = program()
+                const code = compile(node)
+                const exec = Function(code)
+                expect(exec().value).toBe(10)
+            })
 
-        // no temp, 2 stmt
-        it("[ 7. 3. ]", () => {
-            setLexer("[ 7. 3. ]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{new st.Number(7);return new st.Number(3)});")
-        })
+            it("closure can write outer scope: |a| a:=7. [:b|a:=a+b] value:3. a.", () => {
+                setLexer("|a| a:=7. [:b|a:=a+b] value:3. a.")
+                const node = program()
+                const code = compile(node)
+                const exec = new Function(code)
+                expect(exec().value).toBe(10)
+            })
 
-        // 1 temp, 0 stmt
-        it("[|x|]", () => {
-            setLexer("[|x|]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{let x;});")
-        })
+            // smalltalk doesn't want us to overwrite b
+            // a:=7. [:b|b:=a+b] value:3
 
-        // 1 temp, 1 stmt
-        it("[|x| x]", () => {
-            setLexer("[|x| x:=1]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{let x;x=new st.Number(1);return x});")
-        })
-
-        // 1 temp, 2 stmt
-        it("[|x| x:=2. x * 3]", () => {
-            setLexer("|a| a:=[|x| x:=2. x * 3]. a value")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("let a;a=(()=>{let x;x=new st.Number(2);return (x).$mul(new st.Number(3))});return (a)._value();")
-            const exec = Function(code)
-            expect(exec().value).toBe(6)
-        })
-
-        // 2 temp, 0 stmt
-        it("[|x y|]", () => {
-            setLexer("[|x y|]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{let x,y;});")
-        })
-
-        // 2 temp, 1 stmt
-        it("[|x y| x:=1]", () => {
-            setLexer("[|x y| x:=1]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{let x,y;x=new st.Number(1);return x});")
-        })
-
-        // 2 temp, 2 stmt
-        it("[|x y| x:=1. y:=2.]", () => {
-            setLexer("[|x y| x:=1. y:=2.]")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return (()=>{let x,y;x=new st.Number(1);y=new st.Number(2);return y});")
-        })
-
-        // no arg
-        it("[ 7 ] value.", () => {
-            setLexer("[ 7 ] value.")
-            const node = program()
-            const code = compile(node)
-            const exec = new Function(code)
-            expect(exec().value).toBe(7)
-        })
-
-        // 1 arg
-        it("[ :x | x + 7 ] value: 3", () => {
-            setLexer("[ :x | x + 7 ] value: 3.")
-            const node = program()
-            const code = compile(node)
-            expect(code).toBe("return ((x)=>(x).$add(new st.Number(7)))._value_(new st.Number(3));")
-            const exec = new Function(code)
-            // console.log(exec())
-            expect(exec().value).toBe(10)
-        })
-
-        // 2 arg
-        it("[ :x :y | x + y ] value: 8 value: 2.", () => {
-            setLexer("[ :x :y | x + y ] value: 8 value: 2.")
-            const node = program()
-            const code = compile(node)
-            const exec = new Function(code)
-            expect(exec().value).toBe(10)
-        })
-
-        // 3 arg
-        it("[ :x :y :z | x + y * z] value: 8 value: 2 value: 4.", () => {
-            setLexer("[ :x :y :z | x + y * z] value: 8 value: 2 value: 4.")
-            const node = program()
-            const code = compile(node)
-            const exec = new Function(code)
-            expect(exec().value).toBe(40)
-        })
-
-        it("closure can read outer scope: |a| a:=7. [:b|a+b] value:3.", () => {
-            setLexer("|a| a:=7. [:b|a+b] value:3.")
-            const node = program()
-            const code = compile(node)
-            const exec = Function(code)
-            expect(exec().value).toBe(10)
-        })
-
-        it("closure can write outer scope: |a| a:=7. [:b|a:=a+b] value:3. a.", () => {
-            setLexer("|a| a:=7. [:b|a:=a+b] value:3. a.")
-            const node = program()
-            const code = compile(node)
-            const exec = new Function(code)
-            expect(exec().value).toBe(10)
-        })
-
-        // smalltalk doesn't want us to overwrite b
-        // a:=7. [:b|b:=a+b] value:3
-
-        it("closure can have local variables: a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.", () => {
-            setLexer(`
+            it("closure can have local variables: a := 7. c := 42. [:b| |c| c := a+b. c / 2.] value:3.", () => {
+                setLexer(`
                     | a c |
                     a := 7. c := 42.
                     [ :b | |c| c := a + b. c / 2. ] value: 3.
                     a printNl.
                     c printNl.
                 `)
-            const node = program()
-            const code = compile(node)
-            const exec = new Function(code)
-            ST_Transcript.buffer = ""
-            exec()
-            expect(ST_Transcript.buffer).toBe("7\n42\n")
+                const node = program()
+                const code = compile(node)
+                const exec = new Function(code)
+                ST_Transcript.buffer = ""
+                exec()
+                expect(ST_Transcript.buffer).toBe("7\n42\n")
+            })
         })
     })
 

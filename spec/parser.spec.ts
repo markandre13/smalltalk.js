@@ -11,7 +11,7 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.SYN_UNARY, 'u'],
                 ])
@@ -21,7 +21,7 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.SYN_UNARY, 'a'],
                     [2, Type.SYN_UNARY, 'b'],
@@ -35,10 +35,10 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
                 ])
             })
             it("1 + 2 + 3 + 4", () => {
@@ -46,14 +46,14 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '2'],
+                    [3, Type.TKN_NUMBER, '2'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [3, Type.TKN_NUMBER, '4'],
                 ])
             })
         })
@@ -64,11 +64,11 @@ describe("parser", () => {
                 // node.printTree()
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_KEYWORD, 'a:b:'],
-                    [3, Type.TKN_INTEGER, '2'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '2'],
+                    [3, Type.TKN_NUMBER, '3'],
                 ])
             })
             it("1 a: 2 u + 3 b: 4", () => {
@@ -77,16 +77,16 @@ describe("parser", () => {
                 // node.printTree()
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_KEYWORD, 'a:b:'],
                     [3, Type.SYN_EXPRESSION],
-                    [4, Type.TKN_INTEGER, '2'],
+                    [4, Type.TKN_NUMBER, '2'],
                     [4, Type.SYN_MESSAGES,],
                     [5, Type.SYN_UNARY, 'u'],
                     [5, Type.TKN_BINARY, '+'],
-                    [6, Type.TKN_INTEGER, '3'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [6, Type.TKN_NUMBER, '3'],
+                    [3, Type.TKN_NUMBER, '4'],
                 ])
             })
         })
@@ -97,7 +97,7 @@ describe("parser", () => {
                 // node.printTree()
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
 
                     [2, Type.SYN_UNARY, 'a'],
@@ -105,15 +105,15 @@ describe("parser", () => {
                     [2, Type.SYN_UNARY, 'c'],
 
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '2'],
+                    [3, Type.TKN_NUMBER, '2'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [3, Type.TKN_NUMBER, '4'],
 
                     [2, Type.TKN_KEYWORD, 'u:v:'],
-                    [3, Type.TKN_INTEGER, '5'],
-                    [3, Type.TKN_INTEGER, '6'],
+                    [3, Type.TKN_NUMBER, '5'],
+                    [3, Type.TKN_NUMBER, '6'],
                 ])
             })
 
@@ -122,7 +122,7 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
 
                     [2, Type.SYN_UNARY, 'a'],
@@ -130,24 +130,24 @@ describe("parser", () => {
                     [2, Type.SYN_UNARY, 'c'],
 
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '2'],
+                    [3, Type.TKN_NUMBER, '2'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [3, Type.TKN_NUMBER, '4'],
 
                     [2, Type.TKN_KEYWORD, 'u:v:'],
                     [3, Type.SYN_EXPRESSION],
-                    [4, Type.TKN_INTEGER, '5'],
+                    [4, Type.TKN_NUMBER, '5'],
                     [4, Type.SYN_MESSAGES],
                     [5, Type.SYN_UNARY, 'd'],
                     [5, Type.SYN_UNARY, 'e'],
                     [5, Type.TKN_BINARY, '+'],
-                    [6, Type.TKN_INTEGER, '6'],
+                    [6, Type.TKN_NUMBER, '6'],
                     [5, Type.TKN_BINARY, '+'],
-                    [6, Type.TKN_INTEGER, '7'],
+                    [6, Type.TKN_NUMBER, '7'],
 
-                    [3, Type.TKN_INTEGER, '8'],
+                    [3, Type.TKN_NUMBER, '8'],
                 ])
             })
         })
@@ -158,11 +158,11 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
                     [3, Type.SYN_EXPRESSION],
-                    [4, Type.TKN_INTEGER, '2'],
+                    [4, Type.TKN_NUMBER, '2'],
                     [4, Type.SYN_MESSAGES],
                     [5, Type.SYN_UNARY, 'a'],
                 ])
@@ -172,11 +172,11 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
                     [3, Type.SYN_EXPRESSION],
-                    [4, Type.TKN_INTEGER, '2'],
+                    [4, Type.TKN_NUMBER, '2'],
                     [4, Type.SYN_MESSAGES],
                     [5, Type.SYN_UNARY, 'a'],
                 ])
@@ -189,17 +189,17 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '2'],
+                    [1, Type.TKN_NUMBER, '2'],
 
                     [1, Type.SYN_MESSAGES],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '-'],
-                    [3, Type.TKN_INTEGER, '1'],
+                    [3, Type.TKN_NUMBER, '1'],
                 ])
             })
             it("2 + 3 * 4 ; - 1", () => {
@@ -207,19 +207,19 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '2'],
+                    [1, Type.TKN_NUMBER, '2'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '*'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [3, Type.TKN_NUMBER, '4'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '-'],
-                    [3, Type.TKN_INTEGER, '1'],
+                    [3, Type.TKN_NUMBER, '1'],
                 ])
             })
             it("2 + 3 * 4 * 2 ; + 1", () => {
@@ -227,21 +227,21 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '2'],
+                    [1, Type.TKN_NUMBER, '2'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
                     [2, Type.TKN_BINARY, '*'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [3, Type.TKN_NUMBER, '4'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '*'],
-                    [3, Type.TKN_INTEGER, '2'],
+                    [3, Type.TKN_NUMBER, '2'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '1'],
+                    [3, Type.TKN_NUMBER, '1'],
                 ])
             })
             it("1 + 2 * 3 ; a + 4 b: 5 ; c + 6 d: 7", () => {
@@ -249,29 +249,29 @@ describe("parser", () => {
                 const node = expression()!
                 expectNodeTree(node, [
                     [0, Type.SYN_EXPRESSION],
-                    [1, Type.TKN_INTEGER, '1'],
+                    [1, Type.TKN_NUMBER, '1'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '2'],
+                    [3, Type.TKN_NUMBER, '2'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.TKN_BINARY, '*'],
-                    [3, Type.TKN_INTEGER, '3'],
+                    [3, Type.TKN_NUMBER, '3'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.SYN_UNARY, 'a'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '4'],
+                    [3, Type.TKN_NUMBER, '4'],
                     [2, Type.TKN_KEYWORD, 'b:'],
-                    [3, Type.TKN_INTEGER, '5'],
+                    [3, Type.TKN_NUMBER, '5'],
 
                     [1, Type.SYN_MESSAGES],
                     [2, Type.SYN_UNARY, 'c'],
                     [2, Type.TKN_BINARY, '+'],
-                    [3, Type.TKN_INTEGER, '6'],
+                    [3, Type.TKN_NUMBER, '6'],
                     [2, Type.TKN_KEYWORD, 'd:'],
-                    [3, Type.TKN_INTEGER, '7'],
+                    [3, Type.TKN_NUMBER, '7'],
                 ])
             })
         })
@@ -298,7 +298,7 @@ describe("parser", () => {
                 [2, Type.TKN_ASSIGNMENT],
                 [3, Type.TKN_IDENTIFIER, 'x'],
                 [3, Type.SYN_EXPRESSION],
-                [4, Type.TKN_INTEGER, '4'],
+                [4, Type.TKN_NUMBER, '4'],
             ])
         })
         it("binary", () => {

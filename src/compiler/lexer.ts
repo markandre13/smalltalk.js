@@ -8,7 +8,9 @@ export class Lexer {
 
     pos: number
     state: number
-    text?: string
+    radix!: number
+    numericText!: string
+    text?: string // TODO: working with substrings might be faster?
     tokenStack: Array<Node>
 
     static isAlpha(c: string): boolean {
@@ -16,6 +18,13 @@ export class Lexer {
         return (
             (0x41 <= n && n <= 0x5a) ||
             (0x61 <= n && n <= 0x7a)
+        )
+    }
+
+    static isUppercaseAlpha(c: string): boolean {
+        let n = c.charCodeAt(0)
+        return (
+            (0x41 <= n && n <= 0x5a)
         )
     }
 
@@ -133,7 +142,7 @@ export class Lexer {
                         case ']':
                             return new Node(Type.TKN_RIGHT_SQUARE_BRACKET, c)
                         case '\'':
-                            this.state = 2
+                            this.state = 3
                             this.text = ""
                             continue
                         case '"':
@@ -153,7 +162,7 @@ export class Lexer {
                             }
                             if (Lexer.isDigit(c)) {
                                 this.text = ""
-                                this.state = 4
+                                this.state = 20
                                 break
                             }
                             if (Lexer.isBinaryCharacter(c)) {
@@ -169,13 +178,13 @@ export class Lexer {
                         break
                     }
                     if (c === ':') {
-                        this.state = 11
+                        this.state = 2
                         continue
                     }
                     this.ungetc()
                     this.state = 0
                     return new Node(Type.TKN_IDENTIFIER, this.text)
-                case 11:
+                case 2:
                     this.state = 0
                     if (c === '=') {
                         this.unlex(new Node(Type.TKN_ASSIGNMENT))
@@ -183,35 +192,28 @@ export class Lexer {
                     }
                     this.ungetc()
                     return new Node(Type.TKN_KEYWORD, this.text + ":")
-                case 2: // '...
+                case 3: // '...?
                     if (c === '\'') {
-                        this.state = 3
+                        this.state = 4
                         continue
                         // return new Node(Type.TKN_STRING, this.text)
                     }
                     break
-                case 3: // '...'
+                case 4: // '...'?
                     if (c === '\'') {
-                        this.state = 2
+                        this.state = 3
                         break
                     }
                     this.ungetc()
                     this.state = 0
                     return new Node(Type.TKN_STRING, this.text)
-                case 4:
-                    if (!Lexer.isDigit(c)) {
-                        this.ungetc()
-                        this.state = 0
-                        return new Node(Type.TKN_INTEGER, this.text)
-                    }
-                    break
-                case 5:
+                case 5: // "...
                     if (c == '"') {
                         this.state = 0
                         continue
                     }
                     continue
-                case 6: // :...
+                case 6: // :?
                     this.state = 0
                     if (c === '=') {
                         return new Node(Type.TKN_ASSIGNMENT)
@@ -293,6 +295,69 @@ export class Lexer {
                     this.ungetc()
                     this.state = 0
                     return new Node(Type.TKN_HASHED_STRING, this.text)
+                case 20: // {digit}?
+                    if (c === 'r') {
+                        this.radix = parseInt(this.text!)
+                        this.numericText = ""
+                        this.state = 21
+                        break
+                    }
+                    if (c === '.') {
+                        this.state = 22
+                        break
+                    }
+                    if (!Lexer.isDigit(c)) {
+                        this.ungetc()
+                        this.state = 0
+                        return new Node(Type.TKN_NUMBER, this.text, parseInt(this.text!))
+                    }
+                    break
+                case 21: // {digits}r?
+                    if (!Lexer.isDigit(c) && !Lexer.isUppercaseAlpha(c)) {
+                        this.ungetc()
+                        this.state = 0
+                        return new Node(Type.TKN_NUMBER, this.text, parseInt(this.numericText!, this.radix))
+                    }
+                    this.numericText += c
+                    break
+                case 22: // {digits}.?
+                    if (!Lexer.isDigit(c)) {
+                        this.ungetc()
+                        this.ungetc()
+                        this.state = 0
+                        return new Node(Type.TKN_NUMBER, this.text, parseFloat(this.text!))
+                    }
+                    this.state = 23
+                    break
+                case 23: // {digits}.{digits}?
+                    // e: float, d: double
+                    if (c === 'e' || c === 'd' || c === 'q') {
+                        this.state = 24
+                        this.numericText = this.text + 'e'
+                        this.text += c
+                        continue
+                    }
+                    if (!Lexer.isDigit(c)) {
+                        this.ungetc()
+                        this.state = 0
+                        return new Node(Type.TKN_NUMBER, this.text, parseFloat(this.text!))
+                    }
+                    break
+                case 24: // {digits}.{digits}(e|d|q)?
+                    if (c !== '-' && !Lexer.isDigit(c)) {
+                        throw Error(`failed to parse float: expected '-' or number after ${this.text} but got '${c}'`)
+                    }
+                    this.numericText += c
+                    this.state = 25
+                    break
+                case 25: // {digits}.{digits}(e|d|q)[-]{digit}?
+                    if (!Lexer.isDigit(c)) {
+                        this.ungetc()
+                        this.state = 0
+                        return new Node(Type.TKN_NUMBER, this.text, parseFloat(this.numericText))
+                    }
+                    this.numericText += c
+                    break
             }
             if (eof) {
                 if (this.state !== 0) {

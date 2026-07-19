@@ -43,18 +43,74 @@ describe("lex", () => {
     })
     describe("3.4.6 literal", () => {
         describe("3.4.6.1 numeric literals", () => {
+            // {uint}
+            // {radix}r{alphanumeric}
+            // {uint}.{uint}
+            // {uint}.{uint}(e|d|q)[-]{uint}
+
             describe("integer", () => {
                 it("42", () => {
-                    const node = new Lexer("42").lex()
-                    expect(node?.type).toBe(Type.TKN_INTEGER)
+                    const node = new Lexer("42a").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
                     expect(node?.text).toBe("42")
+                    expect(node?.number).toBe(42)
                 })
             })
-            // float
+            describe("radix", () => {
+                it("16rFF", () => {
+                    const node = new Lexer("16rFFff").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
+                    expect(node?.text).toBe("16rFF")
+                    expect(node?.number).toBe(255)
+                })
+            })
+            describe("float", () => {
+                it("3.1415", () => {
+                    const node = new Lexer("3.1415a").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
+                    expect(node?.text).toBe("3.1415")
+                    expect(node?.number).toBe(3.1415)
+                })
+                it("1.2e10", () => {
+                    const node = new Lexer("1.2e10a").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
+                    expect(node?.text).toBe("1.2e10")
+                    expect(node?.number).toBe(1.2e10)
+                })
+                it("1.2e-10", () => {
+                    const node = new Lexer("1.2e-10a").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
+                    expect(node?.text).toBe("1.2e-10")
+                    expect(node?.number).toBe(1.2e-10)
+                })
+                it("1.2d10", () => {
+                    const node = new Lexer("1.2d10a").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
+                    expect(node?.text).toBe("1.2d10")
+                    expect(node?.number).toBe(1.2e10)
+                })
+                it("1.2q10", () => {
+                    const node = new Lexer("1.2q10a").lex()
+                    expect(node?.type).toBe(Type.TKN_NUMBER)
+                    expect(node?.text).toBe("1.2q10")
+                    expect(node?.number).toBe(1.2e10)
+                })
+                it("1. ", () => {
+                    const lexer = new Lexer("1. ")
+                    expect(lexer.lex()?.type).to.equal(Type.TKN_NUMBER)
+                    expect(lexer.lex()?.type).to.equal(Type.TKN_DOT)
+                })
+            })
             // scaledDecimal
         })
-        // 3.4.6.2 character literals $a
-        describe("3.5.8 quotedString", () => {
+        // describe("3.5.6 numbers", () => {
+        //     // decimal integer
+        //     // radix integer
+        //     // float
+        //     // scaled decimal            
+        // })
+        describe("3.5.7 quoted character")
+        describe("3.5.8 quoted string", () => {
             it("within single ticks", () => {
                 const node = new Lexer("'hello'").lex()
                 expect(node?.type).toBe(Type.TKN_STRING)
@@ -154,7 +210,7 @@ describe("lex", () => {
         it("number identifier", () => {
             const lexer = new Lexer("42 printNl")
             const n0 = lexer.lex()
-            expect(n0?.type).toBe(Type.TKN_INTEGER)
+            expect(n0?.type).toBe(Type.TKN_NUMBER)
             expect(n0?.text).toBe("42")
             const n1 = lexer.lex()
             expect(n1?.type).toBe(Type.TKN_IDENTIFIER)
@@ -188,7 +244,7 @@ describe("lex", () => {
             expect(n0?.type).toBe(Type.TKN_LEFT_SQUARE_BRACKET)
 
             const n1 = lexer.lex()
-            expect(n1?.type).toBe(Type.TKN_INTEGER)
+            expect(n1?.type).toBe(Type.TKN_NUMBER)
             expect(n1?.text).toBe("7")
 
             const n2 = lexer.lex()

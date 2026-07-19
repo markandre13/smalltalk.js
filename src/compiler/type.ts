@@ -14,7 +14,7 @@ export enum Type {
     TKN_ASSIGNMENT,
     TKN_COMMENT,
     TKN_STRING,
-    TKN_INTEGER,
+    TKN_NUMBER,
 
     // reserved identifiers
     // TKN_TRUE

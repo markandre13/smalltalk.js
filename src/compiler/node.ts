@@ -3,13 +3,15 @@ import { Type } from "./type"
 export class Node {
     type: Type
     text?: string
+    number?: number
 
     typeParent: Node | undefined
     child: Array<Node | undefined>
 
-    constructor(type: Type, text?: string) {
+    constructor(type: Type, text?: string, number?: number) {
         this.type = type
         this.text = text
+        this.number = number
         this.child = new Array<Node | undefined>()
     }
 

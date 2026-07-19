@@ -773,10 +773,11 @@ function number_literal(): Node | undefined {
         lexer.unlex(t0)
         t0 = undefined
     }
-    let t1 = integer()
+    let t1 = numeric()
     if (t1 !== undefined) {
         if (minus) {
             t1.text = `-${t1.text}`
+            t1.number = -t1.number!
         }
         return t1
     }
@@ -785,9 +786,9 @@ function number_literal(): Node | undefined {
     return undefined
 }
 
-function integer(): Node | undefined {
+function numeric(): Node | undefined {
     let t0 = lexer.lex()
-    if (t0?.type === Type.TKN_INTEGER) {
+    if (t0?.type === Type.TKN_NUMBER) {
         return t0
     }
     lexer.unlex(t0)

@@ -164,7 +164,7 @@ describe("parse", () => {
 
             expectNodeTree(node, [
                 [0, Type.SYN_EXPRESSION],
-                [1, Type.TKN_INTEGER, '42'],
+                [1, Type.TKN_NUMBER, '42'],
                 [1, Type.SYN_MESSAGES],
                 [2, Type.SYN_UNARY, "printNl"],
             ])
@@ -435,7 +435,7 @@ describe("parse", () => {
             expect(node?.child[0]?.child).toHaveLength(1)
             expect(node?.child[0]?.child[0]?.type).toBe(Type.SYN_STATEMENTS)
             expect(node?.child[0]?.child[0]?.child[0]?.type).toBe(Type.SYN_EXPRESSION)
-            expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.type).toBe(Type.TKN_INTEGER)
+            expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.type).toBe(Type.TKN_NUMBER)
             expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.text).toBe("7")
 
             // const r = evaluate(node!)
@@ -451,10 +451,10 @@ describe("parse", () => {
             expect(node?.child[0]?.child[0]?.type).toBe(Type.SYN_STATEMENTS)
             expect(node?.child[0]?.child[0]?.child).toHaveLength(2)
             expect(node?.child[0]?.child[0]?.child[0]?.type).toBe(Type.SYN_EXPRESSION)
-            expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.type).toBe(Type.TKN_INTEGER)
+            expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.type).toBe(Type.TKN_NUMBER)
             expect(node?.child[0]?.child[0]?.child[0]?.child[0]?.text).toBe("7")
             expect(node?.child[0]?.child[0]?.child[1]?.type).toBe(Type.SYN_EXPRESSION)
-            expect(node?.child[0]?.child[0]?.child[1]?.child[0]?.type).toBe(Type.TKN_INTEGER)
+            expect(node?.child[0]?.child[0]?.child[1]?.child[0]?.type).toBe(Type.TKN_NUMBER)
             expect(node?.child[0]?.child[0]?.child[1]?.child[0]?.text).toBe("3")
 
             // const r = evaluate(node!)
@@ -511,7 +511,7 @@ describe("parse", () => {
             expect(bodyExpr?.child[1]?.type).toBe(Type.SYN_MESSAGES)
             expect(bodyExpr?.child[1]?.child[0]?.type).toBe(Type.TKN_BINARY)
             expect(bodyExpr?.child[1]?.child[0]?.text).toBe("+")
-            expect(bodyExpr?.child[1]?.child[0]?.child[0]?.type).toBe(Type.TKN_INTEGER)
+            expect(bodyExpr?.child[1]?.child[0]?.child[0]?.type).toBe(Type.TKN_NUMBER)
             expect(bodyExpr?.child[1]?.child[0]?.child[0]?.text).toBe("7")
         })
 
