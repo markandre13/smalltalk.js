@@ -3,6 +3,9 @@ import { ST_Transcript } from "../ST_Transcript"
 
 const D = 360 / (2.0 * Math.PI)
 
+/**
+ * actually, in ST-80 this is an abstract class
+ */
 export class ST_Number {
     value: number
     constructor(value: number) { this.value = value }
@@ -31,8 +34,14 @@ export class ST_Number {
      * Integer quotient defined by division with truncation toward negative
      * infinity. 9//4 = 2, -9//4 = -3, -0.9//0.4 = -3
      */
-    $idiv(a: ST_Number) { return new ST_Number(Math.floor(this.value / a.value)) }
-    $mod(a: ST_Number) { return new ST_Number(this.value % a.value) }
+    $idiv(aNumber: ST_Number) { return new ST_Number(Math.floor(this.value / aNumber.value)) }
+    /**
+     * modulo.  Remainder defined in terms of //.  Answer a Number with the 
+     * same sign as aNumber.  e.g.  9\\4 = 1,  -9\\4 = 3, 9\\-4 =  -3,  0.9\\0.4 = 0.1
+     */
+    $mod(aNumber: ST_Number) {
+        return new ST_Number(this.value - this.$idiv(aNumber).value * aNumber.value)
+    }
     /**
      * Create an ...
      */

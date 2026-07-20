@@ -111,6 +111,7 @@ When you go to look for a Smalltalk implementation, you'll usually find these th
 * [SqueakJS](https://squeak.js.org) Smalltalk VM in JS
 * [Newspeak](https://newspeaklanguage.org) Smalltalk in WASM
 * [GNU Smalltalk](https://www.gnu.org/software/smalltalk/)
+* [Zag Smalltalk](https://github.com/Zag-Research/Zag-Smalltalk)
 * [Strongtalk](http://strongtalk.org/) Typed Smalltalk with JIT
 * [By the Blue Book](https://github.com/dbanay/Smalltalk) Smalltalk-80 VM in C++
 * [Rochus Keller's Smalltalk LUA & C++ VMs and Qt Browsers](https://github.com/rochus-keller/Smalltalk)
