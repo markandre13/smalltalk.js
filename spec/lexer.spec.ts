@@ -109,6 +109,17 @@ describe("lex", () => {
                 expect(node?.type).toBe(Type.TKN_CHARACTER)
                 expect(node?.text).toBe("a")
             })
+            it("$@.", () => {
+                const lexer = new Lexer("$@.")
+
+                let node = lexer.lex()
+                expect(node?.type).toBe(Type.TKN_CHARACTER)
+                expect(node?.text).toBe("@")
+
+                node = lexer.lex()
+                expect(node?.type).toBe(Type.TKN_DOT)
+                expect(node?.text).toBe(".")
+            })
         })
         describe("3.5.8 quoted string", () => {
             it("within single ticks", () => {

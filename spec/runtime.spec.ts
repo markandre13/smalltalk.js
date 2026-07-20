@@ -24,9 +24,9 @@ export function makeGlobalScope() {
 }
 
 function addMethod(source: string, scope: Scope) {
-    console.log(`---------------------------- addMethod ----------------------------`)
-    console.log(source)
-    console.log(`-------------------------------------------------------------------`)
+    // console.log(`---------------------------- addMethod ----------------------------`)
+    // console.log(source)
+    // console.log(`-------------------------------------------------------------------`)
 
     if (scope.clazz === undefined) {
         throw Error(`addMethod's scope needs to contains a class`)
@@ -39,7 +39,8 @@ function addMethod(source: string, scope: Scope) {
         console.log(`UNPARSED: ${unparsed}`)
     }
 
-    node?.printTree()
+    // node?.printTree()
+    // console.log(lexer.lex())
 
     const methodDefinition = node!
     const messagePattern = methodDefinition.child[0]!
@@ -63,16 +64,16 @@ function addMethod(source: string, scope: Scope) {
                 throw Error(`${scope.clazz.name} ${identifier}: unexpected type in message pattern`)
         }
     }
-    console.log(`METHOD DEFINITION`)
-    console.log(`  IDENTIFIER: ${identifier}`)
-    console.log(`  ARGS      : [${args.join(", ")}]`)
+    // console.log(`METHOD DEFINITION`)
+    // console.log(`  IDENTIFIER: ${identifier}`)
+    // console.log(`  ARGS      : [${args.join(", ")}]`)
 
     let code = compile(node!, scope)
     if (node?.type !== Type.SYN_METHOD_DEFINITION) {
         throw Error('expected method definition')
     }
 
-    console.log(`  CODE      : ${code}`)
+    // console.log(`  CODE      : ${code}`)
 
     args.push(code)
 
@@ -91,7 +92,7 @@ function addMethod(source: string, scope: Scope) {
     // TODO: add to prototype
     scope.clazz.prototype[st_method_name(identifier)] = method
 
-    console.log("OK")
+    // console.log("OK")
 
     return method
 }
@@ -249,7 +250,7 @@ Point comment: 'I am an x-y pair of numbers usually designating a location on th
             code = ";return (st.self)._species().$eq((aPoint)._species())._ifTrue_ifFalse_((()=>(this.x).$eq((aPoint)._x())._and_((()=>(this.y).$eq((aPoint)._y())))),(()=>st.false));"
 
         })
-        it("Point", () => {
+        it.only("Point", () => {
             evaluateSource(`
 Object subclass: #Point
 	instanceVariableNames: 'x y '
@@ -515,7 +516,78 @@ x: xInteger y: yInteger
 
             // TODO: there are also methods for the class!!!
 
-            console.log(globalThis.st.Point)
+            // console.log(globalThis.st.Point)
+        })
+        it("experimental Smalltalk Kernel Classes", () => {
+            // nil subclass: #Object                ; create new class
+            const MetaClass = {
+                methodDict: {
+                    _name: function () {
+                        return this.thisClass ? `${this.thisClass._name()} class` : "a Metaclass"
+                    }
+                } as any
+            }
+
+            // const Behaviour = {
+            //     __proto__: {
+            //         hello: function() { console.log("hello") }
+            //     }
+            // }
+            // ClassDescription
+            const ObjectClass = {
+                __proto__: MetaClass.methodDict,
+                methodDict: {
+                    _class: function () { return this.$class },
+                    _name: function () { return "Object" },
+                    _new: function () {
+                        return {
+                            __proto__: this.methodDict,
+                            _class: () => {
+                                return this
+                            }
+                        }
+                    }
+                } as any
+            }
+            const Object = {
+                $class: ObjectClass, // not sure where Smalltalk stores this value
+                __proto__: ObjectClass.methodDict,
+                methodDict: {} as any,
+            }
+            ObjectClass.thisClass = Object
+
+            // Object methodsFor: 'cat1'            ; add method
+            // ...
+            Object.methodDict["meth1"] = () => "called meth1"
+
+            // o := Object new.                     ; create instance
+            const o = Object._new()
+            // o meth1.                             ; call method
+            expect(o.meth1()).to.equal("called meth1")
+
+            expect(Object._name()).to.equal("Object")
+            expect(Object._class()).to.equal(ObjectClass)
+            expect(ObjectClass._name()).to.equal("Object class")
+
+            // Object class methodsFor: 'cat 2'
+            // ...
+            Object._class().methodDict["meth2"] = () => "called meth2"
+
+            // Object meth2.
+
+            expect(Object.meth2()).to.equal("called meth2")
+
+            // Behaviour.hello()
+
+            function Behavior() {
+
+            }
+            // const b = new Behavior()
+
+            function myFunc(someArg: number) {
+                return someArg > 3
+            }
+            myFunc.description = "default description"
         })
     })
 })

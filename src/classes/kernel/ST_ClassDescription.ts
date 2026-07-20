@@ -7,6 +7,13 @@ export class ST_ClassDescription extends ST_Behaviour {
     organization?: ST_ClassOrganizer
 
     /**
+     * Declare additional variables for my instances.
+     */
+    _instanceVariableNames_(instVarString: ST_String) {
+        this.instanceVariables = instVarString
+    }
+
+    /**
      * Set the receiver's comment to be the argument, aString.
      */
     _comment_(aString: ST_String) {
