@@ -79,3 +79,62 @@ Behaviour
 
 Metaclass
   name: .... ;; this is where new classes are created
+
+// Inspector
+// <obj> inspect.
+//
+// Object subclass: #MyClass
+//   instanceVariableHames: 'testVar' 
+//   classVariableNames: '' 
+//   poolDictionaries: ''
+//   category: 'Test Classes'
+//
+// or
+//
+// Object subclass: #Account.
+// Account instanceVariableNames: 'balance'.
+// Account comment: 'I represent a place to deposit and withdraw money'
+
+// GNU Smalltalk also offers this alternative way to describe objects:
+// Object subclass: Account [
+//     | balance |
+//     <comment: 'I represent a place to deposit and withdraw money'>
+//     Account class >> new [
+//         | r |
+//         <category: 'instance creation'>
+//         r := super new.
+//         r init.
+//         ^r
+//    ]
+//    init [
+//        <category: 'initialization'>
+//        balance := 0
+//    ]
+// ]
+//
+// Account extend [
+//     <comment: 'I represent a place to withdraw money that has been deposited'>
+// ]
+//
+// VisualWorks and Amber use
+// !Object methodsFor 'category'!
+// methodName
+//     "comment"
+//     statements!
+
+// Object -> Behaviour -> ClassDecription -> Class -> ,,,
+
+// Magnitude
+
+
+// TAASOF: ch8: The Dependency Mechanism
+
+// GNU SmallTask Kernel
+
+// Bag class >> new [
+
+// ]
+
+
+// Class comment
+// Object

@@ -7,6 +7,7 @@ import { expression, method_definition, program, setLexer } from "../src/compile
 import { Scope } from "../src/compiler/scope"
 import { Type } from "../src/compiler/type"
 import { makeGlobalScope } from "../src/compiler/evaluate"
+import { Chunker } from "../src/compiler/codefile"
 
 // while smalltalk has no type checks, it requires to declare variable names.
 // hence we could track names, rewrite them and throw errors
@@ -526,6 +527,39 @@ describe("compile", () => {
     })
 
     describe("method definition", () => {
+        describe("return", () => {
+            const code = new Chunker(`
+Object subclass: #A
+    instanceVariableNames: 'a'
+    classVariableNames: 'v'
+    poolDictionaries: ''
+    category: 'Yoo-Test'.
+
+!A methodsFor: 'fun'!
+ret0 "an A"
+    "no return in a method returns the called object itself"
+    1.!
+ret1 "1"
+    ^1.!
+ret2 "1"
+    "a block will return the last value."
+    ^[1.] value.!
+ret3 "1"
+    ^[^1.] value.!
+ret4 "2"
+    [1.] value.
+    ^2!
+ret5 "1: TRICKY: a return in a closure also leaves the surrounding code"
+    "see https://wiki.c2.com/?SmalltalkBlockReturn"
+    "Block-return can be implemented on top of an exception system.
+     what about methods calling methods, blocks provided as arguments?
+     do i really want to wrap each method into a try-catch to pass on the values of block returns?
+    "
+    [^1.] value.
+    ^2.!
+!
+            `)
+        })
         it("Point + delta", () => {
             const lexer = setLexer(`
                 + delta 
