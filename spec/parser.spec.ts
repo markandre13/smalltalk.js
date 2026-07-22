@@ -289,7 +289,7 @@ describe("parser", () => {
                     x := 4
             `)
             const node = method_definition()
-            node?.printTree()
+            // node?.printTree()
             expectNodeTree(node, [
                 [0, Type.SYN_METHOD_DEFINITION],
                 [1, Type.SYN_MESSAGE_PATTERN],
@@ -326,7 +326,7 @@ describe("parser", () => {
                     x := a
             `)
             const node = method_definition()
-            node?.printTree()
+            // node?.printTree()
             expectNodeTree(node, [
                 [0, Type.SYN_METHOD_DEFINITION],
                 [1, Type.SYN_MESSAGE_PATTERN],

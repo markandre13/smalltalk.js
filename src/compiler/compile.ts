@@ -2,7 +2,7 @@
  * transpile the smalltalk parse tree to javascript
  */
 
-import { Scope } from "./scope"
+import { Scope, ScopeType } from "./scope"
 import { makeGlobalScope, st_method_name } from "./evaluate"
 import { Node } from "./node"
 import { Type } from "./type"
@@ -24,6 +24,9 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
                 if (n !== undefined) {
                     r += compile(n, s) + ';'
                 }
+            }
+            if (node.type === Type.SYN_METHOD_DEFINITION) {
+                return `try{${r}} catch(e){if(e instanceof st._rt) return e.value;throw e}`
             }
             return r
         }
@@ -55,7 +58,11 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
             const last = node.child[node.child.length - 1]!
             switch (last.type) {
                 case Type.SYN_EXPRESSION:
-                    r += compileExpression("return ", last, scope)
+                    if (scope.type !== ScopeType.BLOCK) {
+                        r += compileExpression("", last, scope) + ";return this"
+                    } else {
+                        r += compileExpression("return ", last, scope)
+                    }
                     break
                 case Type.TKN_RETURN:
                     r += compile(last, scope)
@@ -72,8 +79,11 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
                         default:
                             lh = last.child[0]!.text!
                     }
-                    r += compileExpression(lh + '=', last.child[1]!, scope)
-                        + `;return ${lh}`
+                    if (scope.type !== ScopeType.BLOCK) {
+                        r += compileExpression(lh + '=', last.child[1]!, scope) + `;return this`
+                    } else {
+                        r += compileExpression(lh + '=', last.child[1]!, scope) + `;return ${lh}`
+                    }
                 } break
                 default:
                     throw Error(`last statement of type ${Type[last.type]} not implemented yet`)
@@ -91,7 +101,12 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
             return compileExpression("", node, scope)
         }
         case Type.TKN_RETURN: {
-            return compileExpression(`return `, node.child[0]!, scope)
+            if (scope.type !== ScopeType.BLOCK) {
+                return compileExpression(`return `, node.child[0]!, scope)
+            } else {
+                // st._rt == BlockReturn
+                return compileExpression(`throw new st._rt(`, node.child[0]!, scope) + ")"
+            }
         }
         case Type.TKN_ASSIGNMENT: {
             let lh: string
@@ -146,6 +161,7 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
         case Type.SYN_BLOCK_CLOSURE: {
             // track a new scope
             let _scope = new Scope(scope)
+            _scope.type = ScopeType.BLOCK
             // collect closure parts
             let _args: Node | undefined = undefined
             let _tmps: Node | undefined = undefined
@@ -185,7 +201,7 @@ export function compile(node: Node | undefined, scope: Scope = makeGlobalScope()
                         r += '{'
                     }
                     r += `${compile(_stmt, _scope)}}`
-                    
+
                     // if (_tmps === undefined) {
                     //     if (_stmt.child.length > 1) {
                     //         r += compile(_stmt, _scope)
@@ -229,6 +245,7 @@ function compileMessage(primary: string, node: Node, scope: Scope) {
                 : `(${primary}).${methodName}()`
         case Type.TKN_BINARY:
         case Type.TKN_KEYWORD: {
+            // console.log(`COMPILE MESSAGE KEYWORD: ${methodName}`)
             const args = node.child.map(n => compile(n!, scope))
             return primary[0] === '('
                 ? `${primary}.${methodName}(${args.join(',')})`
@@ -276,4 +293,30 @@ function compileExpression(stmt: string, node: Node, scope: Scope): string {
         }
         return `{${result}}`
     }
+}
+
+/**
+ * value messages send to block statements need special treatment
+ * to implement the return statement within blocks.
+ * 
+ * for implementation reasons, all value messages will be get special
+ * treatment so that we do not need to check the type of the receiver
+ * at runtime
+ */
+export function isValueMessage(methodName: string) {
+    if (methodName === "_value") {
+        return true
+    }
+    if (((methodName.length - 1) % 6) !== 0) {
+        return false
+    }
+    if (methodName[0] !== '_') {
+        return false
+    }
+    for (let i = 1; i < methodName.length; i += 6) {
+        if (methodName.substring(i, i + 6) !== "value_") {
+            return false
+        }
+    }
+    return true
 }

@@ -1,11 +1,17 @@
 import type { ST_Class } from "../classes/kernel/ST_Class"
-import type { ST_ClassDescription } from "../classes/kernel/ST_ClassDescription"
+
+export enum ScopeType {
+    GLOBAL,
+    OBJECT,
+    BLOCK
+}
 
 export class Scope {
     static readonly localVariable = Symbol("local-variable")
     static readonly objectVariable = Symbol("object-variable")
     static readonly globalVariable = Symbol("global-variable")
 
+    type: ScopeType
     private parent?: Scope
     clazz?: ST_Class
     private instanceVariables?: Set<string>
@@ -13,9 +19,12 @@ export class Scope {
     constructor(parent: Scope | undefined = undefined, clazz?: ST_Class) {
         this.parent = parent
         if (clazz) {
+            this.type = ScopeType.OBJECT
             this.clazz = clazz
             this.instanceVariables = new Set(clazz.instanceVariables!.value.split(" ").map((it: string) => it.trim()))
             // console.log(`CREATE CLASS SCOPE ${instanceVariables}`)
+        } else {
+            this.type = ScopeType.GLOBAL
         }
     }
     init(name: string, variable: any) {

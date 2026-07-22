@@ -4,17 +4,19 @@ import { ST_MetaClass } from "../src/classes/kernel/ST_MetaClass"
 import { ST_Object } from "../src/classes/kernel/ST_Object"
 import { ST_Number } from "../src/classes/numeric/ST_Number"
 import { SystemDictionary } from "../src/classes/system/SystemDictionary"
+import { BlockReturn } from "../src/compiler/blockreturn"
 import { Chunker } from "../src/compiler/codefile"
 import { compile } from "../src/compiler/compile"
 import { st_method_name } from "../src/compiler/evaluate"
 import { method_definition, program, setLexer } from "../src/compiler/parser"
-import { Scope } from "../src/compiler/scope"
+import { Scope, ScopeType } from "../src/compiler/scope"
 import { Type } from "../src/compiler/type"
 
 export function makeGlobalScope() {
     const scope = new Scope()
 
     const dict = new SystemDictionary()
+    dict._at_put_("_rt", BlockReturn)
     dict._at_put_("Smalltalk", dict)
     dict._at_put_("Object", ST_Object)
     dict._at_put_("String", ST_String)
@@ -93,7 +95,6 @@ export function addMethod(source: string, scope: Scope) {
     // console.log
     // console.log(scope.clazz.constructor.name)
     if (scope.clazz instanceof ST_MetaClass) {
-        console.log(code)
         scope.clazz.thisClass[st_method_name(identifier)] = method
     } else {
         scope.clazz.prototype[st_method_name(identifier)] = method
@@ -108,24 +109,24 @@ export function evaluate(source: string, scope?: Scope) {
     if (scope === undefined) { scope = makeGlobalScope() }
     const lexer = setLexer(source)
     const node = scope.clazz ? method_definition() : program()
-    // node?.printTree()
     const unparsed = lexer.unparsed()
-    if (unparsed.trim().length !== 0) {
-        console.log(`UNPARSED: ${unparsed}`)
-    }
-    const code = compile(node!, scope)
+    let code = ""
     try {
+        if (unparsed.trim().length !== 0) {
+            throw Error(`UNPARSED: ${unparsed}`)
+        }
+        code = compile(node!, scope)
         return (new Function(code))()
     } catch (e) {
-        console.log('----------------------------------------------------------')
+        console.log(`ERROR: ${e}`)
+        console.log(`SCOPE: ${ScopeType[scope.type]}`)
+        console.log('---------------------------- source -------------------------------')
         console.log(source)
-        console.log('----------------------------------------------------------')
+        console.log('----------------------------- node --------------------------------')
+        node?.printTree()
+        console.log('----------------------------- code --------------------------------')
         console.error(code)
-        console.log('----------------------------------------------------------')
-        // console.log(globalThis.st)
-        if (e instanceof TypeError) {
-            // console.log(e.stack)
-        }
+        console.log('-------------------------------------------------------------------')
         throw e
     }
 }
@@ -136,6 +137,7 @@ export function evaluateSource(code: string, scope?: Scope) {
     let classScope: Scope | undefined
     while (true) {
         const chunk = codefile.chunk()
+        // console.log(`------------------- in class ${classScope !== undefined}\n${chunk}\n-------------------`)
         if (chunk === null) { break }
         if (chunk.length === 0) {
             // console.log('end of methods')
@@ -145,13 +147,19 @@ export function evaluateSource(code: string, scope?: Scope) {
         if (classScope) {
             addMethod(chunk, classScope)
         } else {
-            const r = evaluate(chunk, classScope ? classScope : scope)
-            if (r instanceof ClassCategoryReader) {
-                // console.log('start methods')
-                classScope = new Scope(scope, r.clazz)
+            ST_MetaClass.reader = undefined
+            evaluate(chunk, classScope ? classScope : scope)
+            if (ST_MetaClass.reader) {
+                // console.log('START METHODS #############################################')
+                ST_MetaClass.reader
+                classScope = new Scope(scope, ST_MetaClass.reader.clazz)
             }
         }
     }
+    if (classScope) {
+        return classScope
+    }
+    return scope
 }
 
 export async function evaluateFile(file: string, scope?: Scope) {

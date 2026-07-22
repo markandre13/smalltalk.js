@@ -29,8 +29,8 @@ export class ST_Class extends ST_ClassDescription {
      * dictionary category, aString, of the receiver.
      */
     _methodsFor_(aString: ST_String) {
-        // console.log(`Class methodsFor: ${aString}`)
-        // ^ClassCategoryReader class: self category: aString asSymbol
-        return new ClassCategoryReader(this, aString)
+        // console.log(`################################ ST_Class::_methodsFor_: #${aString}`)
+        ST_MetaClass.reader = new ClassCategoryReader(this, aString)
+        return ST_MetaClass.reader
     }
 }

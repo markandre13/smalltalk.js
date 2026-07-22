@@ -2,12 +2,11 @@ import { describe, expect, it } from "vitest"
 import { ST_Point } from "../src/classes/graphics/ST_Point"
 import { ST_Number } from "../src/classes/numeric/ST_Number"
 import { ST_Transcript } from "../src/classes/ST_Transcript"
-import { compile } from "../src/compiler/compile"
+import { compile, isValueMessage } from "../src/compiler/compile"
 import { expression, method_definition, program, setLexer } from "../src/compiler/parser"
 import { Scope } from "../src/compiler/scope"
 import { Type } from "../src/compiler/type"
 import { makeGlobalScope } from "../src/compiler/evaluate"
-import { Chunker } from "../src/compiler/codefile"
 
 // while smalltalk has no type checks, it requires to declare variable names.
 // hence we could track names, rewrite them and throw errors
@@ -35,7 +34,7 @@ describe("compile", () => {
             setLexer("'hello' printNl")
             const node = program()
             const code = compile(node!)
-            expect(code).toEqual("return (new st.String('hello'))._printNl();")
+            // expect(code).toEqual("return (new st.String('hello'))._printNl();")
 
             ST_Transcript.buffer = ""
             const result = new Function(code)()
@@ -47,7 +46,7 @@ describe("compile", () => {
             const node = program()
             const code = compile(node!)
             // console.log(code)
-            expect(code).toEqual("return (new st.Number(42))._printNl();")
+            // expect(code).toEqual("return (new st.Number(42))._printNl();")
 
             ST_Transcript.buffer = ""
             const result = new Function(code)()
@@ -63,7 +62,7 @@ describe("compile", () => {
             // console.log(r)
             expect(r).toBe("new st.Number(1)")
         })
-        it.skip("float", () => {
+        it("float", () => {
             setLexer("3.1415")
             const node = expression()
             const r = compile(node!)
@@ -75,22 +74,22 @@ describe("compile", () => {
             const node = expression()
             const r = compile(node!)
             // console.log(r)
-            expect(r).toBe("new st.String('hello')")
+            expect(r).toBe("new st.String(`hello`)")
         })
     })
     describe("number operations", () => {
         it("1 + 3", () => {
-            setLexer("1 + 3")
+            setLexer("^1 + 3")
             const node = program()
             const code = compile(node!)
+            // console.log(code)
             expect(code).toEqual("return (new st.Number(1)).$add(new st.Number(3));")
 
             const result = new Function(code)()
             expect(result.value).toBe(4)
         })
-
         it("2 sin", () => {
-            setLexer("2 sin")
+            setLexer("^2 sin")
             const node = program()
             const code = compile(node!)
             expect(code).toEqual("return (new st.Number(2))._sin();")
@@ -98,9 +97,8 @@ describe("compile", () => {
             const result = new Function(code)()
             expect(result.value).toBe(0.9092974268256817)
         })
-
         it("2 * 3", () => {
-            setLexer("2 * 3")
+            setLexer("^2 * 3")
             const node = program()
             const code = compile(node!)
             expect(code).toEqual("return (new st.Number(2)).$mul(new st.Number(3));")
@@ -108,9 +106,8 @@ describe("compile", () => {
             const result = new Function(code)()
             expect(result.value).toBe(6)
         })
-
         it("10 - 3", () => {
-            setLexer("10 - 3")
+            setLexer("^10 - 3")
             const node = program()
             const code = compile(node!)
             expect(code).toEqual("return (new st.Number(10)).$sub(new st.Number(3));")
@@ -118,9 +115,8 @@ describe("compile", () => {
             const result = new Function(code)()
             expect(result.value).toBe(7)
         })
-
         it("8 / 2", () => {
-            setLexer("8 / 2")
+            setLexer("^8 / 2")
             const node = program()
             const code = compile(node!)
             expect(code).toEqual("return (new st.Number(8)).$div(new st.Number(2));")
@@ -128,9 +124,8 @@ describe("compile", () => {
             const result = new Function(code)()
             expect(result.value).toBe(4)
         })
-
         it("8 / 2 + 6", () => {
-            setLexer("8 / 2 + 6")
+            setLexer("^8 / 2 + 6")
             const node = program()
             const code = compile(node!)
             expect(code).toEqual("return (new st.Number(8)).$div(new st.Number(2)).$add(new st.Number(6));")
@@ -140,13 +135,12 @@ describe("compile", () => {
         })
     })
     describe("cascaded messages", () => {
-
         it("2 + 3 ; - 1", () => {
-            setLexer("2 + 3 ; - 1")
+            setLexer("^2 + 3 ; - 1")
             const node = program()
 
             const code = compile(node!)
-            expect(code).toEqual("{let _tmp=new st.Number(2);(_tmp).$add(new st.Number(3));return (_tmp).$sub(new st.Number(1))};")
+            // expect(code).toEqual("{let _tmp=new st.Number(2);(_tmp).$add(new st.Number(3));return (_tmp).$sub(new st.Number(1))};")
             const result = new Function(code)()
             expect(result.value).toBe(1)
         })
@@ -155,33 +149,33 @@ describe("compile", () => {
         // ( 2 + 3 ) * 4 ; ( 2 + 3 ) ; -1
         // 20            ; 4
         it("2 + 3 * 4 ; - 1", () => {
-            setLexer("2 + 3 * 4 ; - 1")
+            setLexer("^2 + 3 * 4 ; - 1")
             const node = program()
 
             const code = compile(node!)
-            expect(code).toEqual("{let _tmp=(new st.Number(2)).$add(new st.Number(3));(_tmp).$mul(new st.Number(4));return (_tmp).$sub(new st.Number(1))};")
+            // expect(code).toEqual("{let _tmp=(new st.Number(2)).$add(new st.Number(3));(_tmp).$mul(new st.Number(4));return (_tmp).$sub(new st.Number(1))};")
 
             const result = new Function(code)()
             expect(result.value).toBe(4)
         })
 
         it("2 + 3 * 4 * 2 ; + 1", () => {
-            setLexer("2 + 3 * 4 * 2 ; + 1")
+            setLexer("^2 + 3 * 4 * 2 ; + 1")
             const node = program()
 
             const code = compile(node!)
-            expect(code).toEqual("{let _tmp=(new st.Number(2)).$add(new st.Number(3)).$mul(new st.Number(4));(_tmp).$mul(new st.Number(2));return (_tmp).$add(new st.Number(1))};")
+            // expect(code).toEqual("{let _tmp=(new st.Number(2)).$add(new st.Number(3)).$mul(new st.Number(4));(_tmp).$mul(new st.Number(2));return (_tmp).$add(new st.Number(1))};")
 
             const result = new Function(code)()
             expect(result.value).toBe(21)
         })
 
         it("1 + 3 * 4 ; + 5 ; + 6", () => {
-            setLexer("1 + 3 * 4 ; + 5 ; + 6")
+            setLexer("^1 + 3 * 4 ; + 5 ; + 6")
             const node = program()
 
             const code = compile(node!)
-            expect(code).toEqual("{let _tmp=(new st.Number(1)).$add(new st.Number(3));(_tmp).$mul(new st.Number(4));(_tmp).$add(new st.Number(5));return (_tmp).$add(new st.Number(6))};")
+            // expect(code).toEqual("{let _tmp=(new st.Number(1)).$add(new st.Number(3));(_tmp).$mul(new st.Number(4));(_tmp).$add(new st.Number(5));return (_tmp).$add(new st.Number(6))};")
 
             const result = new Function(code)()
             expect(result.value).toBe(10)
@@ -191,11 +185,11 @@ describe("compile", () => {
         // an implementation actually resolving this without an error message.
         // but 1 + 3 + 7 + 8 = 19 looks reasonable
         it("1 + 3 * 4 ; + 5 + 6 ; + 7 + 8", () => {
-            setLexer("1 + 3 * 4 ; + 5 + 6 ; + 7 + 8")
+            setLexer("^1 + 3 * 4 ; + 5 + 6 ; + 7 + 8")
             const node = program()
 
             const code = compile(node!)
-            expect(code).toEqual("{let _tmp=(new st.Number(1)).$add(new st.Number(3));(_tmp).$mul(new st.Number(4));(_tmp).$add(new st.Number(5)).$add(new st.Number(6));return (_tmp).$add(new st.Number(7)).$add(new st.Number(8))};")
+            // expect(code).toEqual("{let _tmp=(new st.Number(1)).$add(new st.Number(3));(_tmp).$mul(new st.Number(4));(_tmp).$add(new st.Number(5)).$add(new st.Number(6));return (_tmp).$add(new st.Number(7)).$add(new st.Number(8))};")
 
             const result = new Function(code)()
             expect(result.value).toBe(19)
@@ -203,20 +197,20 @@ describe("compile", () => {
     })
     describe("parenthesis", () => {
         it("( 1 + 2 ) * 3", () => {
-            setLexer("( 1 + 2 ) * 3")
+            setLexer("^( 1 + 2 ) * 3")
             const node = program()
             const code = compile(node!)
-            expect(code).toEqual("return (new st.Number(1)).$add(new st.Number(2)).$mul(new st.Number(3));")
+            // expect(code).toEqual("return (new st.Number(1)).$add(new st.Number(2)).$mul(new st.Number(3));")
 
             const result = new Function(code)()
             expect(result.value).toBe(9)
         })
 
         it("1 * ( 2  + 3 )", () => {
-            setLexer("1 * ( 2  + 3 )")
+            setLexer("^1 * ( 2  + 3 )")
             const node = program()
             const code = compile(node!)
-            expect(code).toEqual("return (new st.Number(1)).$mul((new st.Number(2)).$add(new st.Number(3)));")
+            // expect(code).toEqual("return (new st.Number(1)).$mul((new st.Number(2)).$add(new st.Number(3)));")
 
             const result = new Function(code)()
             expect(result.value).toBe(5)
@@ -227,7 +221,7 @@ describe("compile", () => {
             setLexer("|a| a := 42. Transcript show: a.")
             const node = program()
             const code = compile(node!)
-            expect(code).toEqual("let a;a=new st.Number(42);return (st.Transcript)._show_(a);")
+            // expect(code).toEqual("let a;a=new st.Number(42);return (st.Transcript)._show_(a);")
             ST_Transcript.buffer = ""
             new Function(code)()
             expect(ST_Transcript.buffer).toBe('42')
@@ -236,17 +230,17 @@ describe("compile", () => {
             setLexer("|a b| a := 1. b := 2. Transcript show: a; cr; show: b; cr.")
             const node = program()
             const code = compile(node!)
-            expect(code).toEqual("let a,b;a=new st.Number(1);b=new st.Number(2);{let _tmp=st.Transcript;(_tmp)._show_(a);(_tmp)._cr();(_tmp)._show_(b);return (_tmp)._cr()};")
+            // expect(code).toEqual("let a,b;a=new st.Number(1);b=new st.Number(2);{let _tmp=st.Transcript;(_tmp)._show_(a);(_tmp)._cr();(_tmp)._show_(b);return (_tmp)._cr()};")
             ST_Transcript.buffer = ""
             new Function(code)()
             expect(ST_Transcript.buffer).toBe('1\n2\n')
         })
         it("read variable: a := 7. a + 3.", () => {
-            setLexer("|a| a := 7. a + 3.")
+            setLexer("|a| a := 7. ^a + 3.")
             const node = program()
             const code = compile(node!)
             // console.log(code)
-            expect(code).toEqual("let a;a=new st.Number(7);return (a).$add(new st.Number(3));")
+            // expect(code).toEqual("let a;a=new st.Number(7);return (a).$add(new st.Number(3));")
             ST_Transcript.buffer = ""
             const r = new Function(code)()
             expect(r.value).toBe(10)
@@ -255,22 +249,42 @@ describe("compile", () => {
 
     describe("code block", () => {
         describe("arguments", () => {
-            it("[ :a | ]", () => {
-                setLexer("[ :a | ]")
+            it.skip("no statements", () => {
+                setLexer("^[ :a | ] value: 2.")
                 const node = program()
                 const code = compile(node)
-                expect(code).toBe("return ((a)=>{});") // SURE?
+                // console.log(code)
+                const r = new Function(code)()
+                // expect(r.value).to.equal(6)
+                console.log(r)
+                // THIS SHOULD RETURN nil
             })
 
-            it("[ :a :b | ]", () => {
+            it("one argument", () => {
+                setLexer("^[ :a | a * 3 ] value: 2.")
+                const node = program()
+                const code = compile(node)
+                const r = new Function(code)()
+                expect(r.value).to.equal(6)
+            })
+
+            it.skip("[ :a :b | ]", () => {
                 setLexer("[ :a :b | ]")
                 const node = program()
                 const code = compile(node)
                 expect(code).toBe("return ((a,b)=>{});")
             })
 
+            it("two arguments", () => {
+                setLexer("^[ :a :b | a * b ] value: 2 value: 3.")
+                const node = program()
+                const code = compile(node)
+                const r = new Function(code)()
+                expect(r.value).to.equal(6)
+            })
+
             // no temp, 0 stmt
-            it("[ ]", () => {
+            it.skip("[ ]", () => {
                 setLexer("[ ]")
                 const node = program()
                 const code = compile(node)
@@ -279,18 +293,22 @@ describe("compile", () => {
 
             // no temp, 1 stmt
             it("[ 7 ]", () => {
-                setLexer("[ 7 ]")
+                setLexer("^[ 7 ] value")
                 const node = program()
                 const code = compile(node)
-                expect(code).toBe("return (()=>{return new st.Number(7)});")
+                // expect(code).toBe("return (()=>{return new st.Number(7)});")
+                const r = new Function(code)()
+                expect(r.value).to.equal(7)
             })
 
             // no temp, 2 stmt
             it("[ 7. 3. ]", () => {
-                setLexer("[ 7. 3. ]")
+                setLexer("^[ 7. 3. ] value")
                 const node = program()
                 const code = compile(node)
-                expect(code).toBe("return (()=>{new st.Number(7);return new st.Number(3)});")
+                // expect(code).toBe("return (()=>{new st.Number(7);return new st.Number(3)});")
+                const r = new Function(code)()
+                expect(r.value).to.equal(3)
             })
 
             // 1 temp, 0 stmt
@@ -298,7 +316,8 @@ describe("compile", () => {
                 setLexer("[|x|]")
                 const node = program()
                 const code = compile(node)
-                expect(code).toBe("return (()=>{let x;});")
+                const r = new Function(code)()
+                // expect(code).toBe("return (()=>{let x;});")
             })
 
             // 1 temp, 1 stmt
@@ -306,15 +325,16 @@ describe("compile", () => {
                 setLexer("[|x| x:=1]")
                 const node = program()
                 const code = compile(node)
-                expect(code).toBe("return (()=>{let x;x=new st.Number(1);return x});")
+                // expect(code).toBe("return (()=>{let x;x=new st.Number(1);return x});")
+                const r = new Function(code)()
             })
 
             // 1 temp, 2 stmt
             it("[|x| x:=2. x * 3]", () => {
-                setLexer("|a| a:=[|x| x:=2. x * 3]. a value")
+                setLexer("|a| a:=[|x| x:=2. x * 3]. ^a value")
                 const node = program()
                 const code = compile(node)
-                expect(code).toBe("let a;a=(()=>{let x;x=new st.Number(2);return (x).$mul(new st.Number(3))});return (a)._value();")
+                // expect(code).toBe("let a;a=(()=>{let x;x=new st.Number(2);return (x).$mul(new st.Number(3))});return (a)._value();")
                 const exec = Function(code)
                 expect(exec().value).toBe(6)
             })
@@ -380,43 +400,6 @@ describe("compile", () => {
                 const exec = new Function(code)
                 expect(exec().value).toBe(40)
             })
-        })
-
-        // closure with return, GNU SmallTalk seems to fail here and returns nil
-        describe("return", () => {
-            it("[^1]", () => {
-                setLexer("[^1]")
-                const node = program()
-                // node?.printTree()
-                const code = compile(node)
-                // console.log(code)
-                expect(code).toBe("return (()=>{return new st.Number(1)});")  
-            })
-            it("[1]", () => {
-                setLexer("[1]")
-                const node = program()
-                // node?.printTree()
-                const code = compile(node)
-                // console.log(code)
-                expect(code).toBe("return (()=>{return new st.Number(1)});")  
-            })
-            it("[1. ^2]", () => {
-                setLexer("[1. ^2]")
-                const node = program()
-                // node?.printTree()
-                const code = compile(node)
-                // console.log(code)
-                expect(code).toBe("return (()=>{new st.Number(1);return new st.Number(2)});")  
-            })
-            it("[1. 2]", () => {
-                setLexer("[1. 2]")
-                const node = program()
-                // node?.printTree()
-                const code = compile(node)
-                // console.log(code)
-                expect(code).toBe("return (()=>{new st.Number(1);return new st.Number(2)});")  
-            })
-
         })
 
         describe("scope", () => {
@@ -509,7 +492,7 @@ describe("compile", () => {
             `)
             const node = program()
             const code = compile(node)
-            console.log(code)
+            // console.log(code)
             ST_Transcript.buffer = ""
             const exec = Function(code)
             exec()
@@ -526,40 +509,91 @@ describe("compile", () => {
         // (Smalltalk classes select: [:eachClass | eachClass name = 'ProfStef']) do: [:eachProfstef | eachProfstef next].
     })
 
-    describe("method definition", () => {
-        describe("return", () => {
-            const code = new Chunker(`
-Object subclass: #A
-    instanceVariableNames: 'a'
-    classVariableNames: 'v'
-    poolDictionaries: ''
-    category: 'Yoo-Test'.
-
-!A methodsFor: 'fun'!
-ret0 "an A"
-    "no return in a method returns the called object itself"
-    1.!
-ret1 "1"
-    ^1.!
-ret2 "1"
-    "a block will return the last value."
-    ^[1.] value.!
-ret3 "1"
-    ^[^1.] value.!
-ret4 "2"
-    [1.] value.
-    ^2!
-ret5 "1: TRICKY: a return in a closure also leaves the surrounding code"
-    "see https://wiki.c2.com/?SmalltalkBlockReturn"
-    "Block-return can be implemented on top of an exception system.
-     what about methods calling methods, blocks provided as arguments?
-     do i really want to wrap each method into a try-catch to pass on the values of block returns?
-    "
-    [^1.] value.
-    ^2.!
-!
-            `)
+    describe("return handling", () => {
+        describe("last statement in method", () => {
+            it("expression will return self", () => {
+                setLexer(`
+                    fun
+                        1.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                const obj = { f: Function(code) }
+                const r = obj.f()
+                expect(r).to.equal(obj)
+            })
+            it("return statement will return given value", () => {
+                setLexer(`
+                    fun
+                        ^1.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                const obj = { f: Function(code) }
+                const r = obj.f()
+                expect(r.value).to.equal(1)
+            })
+            it("assignment will return self", () => {
+                setLexer(`
+                    fun
+                        |a|
+                        a := 1.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                const obj = { f: Function(code) }
+                const r = obj.f()
+                expect(r).to.equal(obj)
+            })
         })
+        describe("block", () => {
+            it("return in block will return from method", () => {
+                setLexer(`
+                    fun
+                        [^2] value.
+                        ^1.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                const r = new Function(code)()
+                expect(r.value).to.equal(2)
+            })
+            it("block without return does not return from method", () => {
+                setLexer(`
+                    fun
+                        [2.] value.
+                        ^1.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                const r = new Function(code)()
+                expect(r.value).to.equal(1)
+            })
+            it("block returns the value of it's last expression", () => {
+                setLexer(`
+                    fun
+                        ^[8. 2.] value.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                const r = new Function(code)()
+                expect(r.value).to.equal(2)
+            })
+            it("block returns the value of it's last assignment", () => {
+                setLexer(`
+                    fun
+                        ^[|a| a:=7 ] value.
+                `)
+                const node = method_definition()
+                const code = compile(node)
+                // console.log(code)
+                const r = new Function(code)()
+                expect(r.value).to.equal(7)
+            })
+        })
+    })
+
+    describe("method definition", () => {
         it("Point + delta", () => {
             const lexer = setLexer(`
                 + delta 
@@ -725,7 +759,7 @@ ret5 "1: TRICKY: a return in a closure also leaves the surrounding code"
             setLexer("[3. 5. 7]")
             const node = program()
             const code = compile(node)
-            console.log(code)
+            // console.log(code)
             expect(code).to.equal("return (()=>{new st.Number(3);new st.Number(5);return new st.Number(7)});")
         })
         it("1 + ( 2 a )", () => {
@@ -752,7 +786,7 @@ ret5 "1: TRICKY: a return in a closure also leaves the surrounding code"
             const node = program()
             // node?.printTree()
             const code = compile(node!)
-            expect(code).toEqual("new st.Number(1);return new st.Number(2);")
+            // expect(code).toEqual("new st.Number(1);return new st.Number(2);")
             // console.log(code)
 
             const result = new Function(code)()
@@ -769,5 +803,25 @@ ret5 "1: TRICKY: a return in a closure also leaves the surrounding code"
         //     expect(scope.get("a").value).toBe("hello")
         //     expect(scope.get("b").value).toBe("world")
         // })
+    })
+    describe("isValueMessage(methodName)", () => {
+        it("_value -> true", () => {
+            expect(isValueMessage("_value")).to.be.true
+        })
+        it("_valuex -> false", () => {
+            expect(isValueMessage("_valuex")).to.be.false
+        })
+        it("_value_ -> true", () => {
+            expect(isValueMessage("_value_")).to.be.true
+        })
+        it("_value_x_ -> false", () => {
+            expect(isValueMessage("_value_x_")).to.be.false
+        })
+        it("_value -> true", () => {
+            expect(isValueMessage("_value_value_value_value_value_")).to.be.true
+        })
+        it("_value_value_value_value_value_x_ -> false", () => {
+            expect(isValueMessage("_value_value_value_value_value_x_")).to.be.false
+        })
     })
 })

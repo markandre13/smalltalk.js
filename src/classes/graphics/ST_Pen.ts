@@ -63,6 +63,7 @@ export class ST_Pen {
         this.location = aPoint
         if (this.penDown) {
             // console.log(`draw (${old.x.value}, ${old.y.value}) - (${this.location.x.value}, ${this.location.y.value})`)
+            this.ctx.lineWidth = 0.1
             this.ctx.moveTo(old.x.value, old.y.value)
             this.ctx.lineTo(this.location.x.value, this.location.y.value)
             this.ctx.stroke()

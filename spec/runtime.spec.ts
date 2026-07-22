@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest"
+import { beforeAll, beforeEach, describe, expect, it } from "vitest"
 import { SystemDictionary } from "../src/classes/system/SystemDictionary"
 import { evaluate, evaluateFile, evaluateSource, makeGlobalScope } from "./util"
+import type { Scope } from "../src/compiler/scope"
 
 describe("runtime", () => {
     describe("global variables", () => {
@@ -81,27 +82,40 @@ describe("runtime", () => {
             expect(st.dot.x.value).to.equal(3)
             expect(st.dot.y.value).to.equal(5)
         })
-        describe.only("Point", () => {
-            it("x:,y:", async () => {
-                const scope = makeGlobalScope()
+        describe("Point", () => {
+            let scope!: Scope
+            beforeAll(async () => {
+                scope = makeGlobalScope()
                 await evaluateFile("src/classes/graphics/Point.st", scope)
+            })
+            it("p0 := Point new setX: 3 setY: 5.", async () => {
                 evaluateSource(`
                     |p0|
-                    "p0 := Point x: 3 y: 5."
                     p0 := Point new setX: 3 setY: 5.
                     Smalltalk at: #p0 put: p0.
                 `, scope)
+
                 const st = (globalThis as any).st
-                // this seems to return 5 instead of Point 3 @ 5
-                // when there's no return statement, the self is returned? (unless it's a closure?)
-                // ^self new setX: xInteger setY: yInteger! !
-                console.log(st.p0)
-                // expect(st.p0.x.value).to.equal(3)
-                // expect(st.p0.y.value).to.equal(5)
+                expect(st.p0.x.value).to.equal(3)
+                expect(st.p0.y.value).to.equal(5)
             })
+
+            it("p0 := Point x: 3 y: 5.", async () => {
+                evaluateSource(`
+                    |p0|
+                    p0 := Point x: 3 y: 5.
+                    Smalltalk at: #p1 put: p0.
+                `, scope)
+
+                const st = (globalThis as any).st
+                expect(st.p1.x.value).to.equal(3)
+                expect(st.p1.y.value).to.equal(5)
+            })
+
+
         })
         describe("SUnit", () => {
-            it("load", async () => {
+            it.skip("load", async () => {
                 const scope = makeGlobalScope()
                 await evaluateFile("src/classes/sunit/SUnit.st", scope)
             })

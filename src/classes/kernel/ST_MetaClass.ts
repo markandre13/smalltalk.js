@@ -8,15 +8,17 @@ import { ST_ClassDescription } from "./ST_ClassDescription"
 // When we want to 'Object subclass: #Point'
 // we also 
 export class ST_MetaClass extends ST_ClassDescription {
+    static reader: ClassCategoryReader | undefined
     /**
      * thisClass <Class> the chief instance of me, which I describe
      */
     thisClass?: ST_Class
 
     _methodsFor_(aString: ST_String) {
-        // console.log(`Class methodsFor: ${aString}`)
+        // console.log(`################################ ST_MetaClass::_methodsFor_: #${aString}`)
         // ^ClassCategoryReader class: self category: aString asSymbol
-        return new ClassCategoryReader(this, aString)
+        ST_MetaClass.reader = new ClassCategoryReader(this, aString)
+        return ST_MetaClass.reader
     }
 
     /** 

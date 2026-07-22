@@ -5,6 +5,7 @@ import { ST_Point } from "../classes/graphics/ST_Point"
 import { ST_String } from "../classes/collections/ST_String"
 import { ST_Transcript } from "../classes/ST_Transcript"
 import { SystemDictionary } from "../classes/system/SystemDictionary"
+import { BlockReturn } from "./blockreturn"
 
 /**
  * setup the global environment to execute smalltalk
@@ -19,6 +20,8 @@ export function initialize() {
     dict._at_put_("Point", ST_Point)
     dict._at_put_("String", ST_String)
     dict._at_put_("Transcript", ST_Transcript)
+
+    dict._at_put_("_rt", BlockReturn)
 
     // st.nil = {
     //     "subclass_instanceVariableNames_classVariableNames_poolDictionaries_category_": (
